@@ -1,0 +1,47 @@
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+
+export type TrafficLight = 'green' | 'yellow' | 'red';
+
+export type FoodNature = 'vegetarian' | 'meat';
+
+export type DateTag = 'weekday' | 'weekend' | 'festival';
+
+export interface CookingStep {
+  title: string;
+  duration: string;
+  detail: string;
+}
+
+export interface FoodItem {
+  id: string;
+  name: string;
+  calories: number;
+  trafficLight: TrafficLight;
+  type: FoodNature;
+  seasons: Season[];
+  dateTags: DateTag[];
+  description: string;
+  nutrients: string[];
+  ingredients: string[];
+  cookingMethod: string;
+  bestTime: string;
+  cookingSteps: CookingStep[];
+}
+
+export interface SpinnerOption {
+  id: string;
+  label: string;
+  calories?: number;
+  origin: 'system' | 'user';
+  meta?: {
+    trafficLight?: TrafficLight;
+    type?: FoodNature;
+  };
+}
+
+export interface SpinRecord {
+  id: string;
+  option: SpinnerOption;
+  source: 'daily' | 'custom';
+  timestamp: string;
+}
