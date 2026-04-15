@@ -39,10 +39,77 @@
   font-size: 1rem;
 }
 
-.layout {
+.tab-shell {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 280px 1fr;
   gap: 1.5rem;
+  align-items: start;
+}
+
+.tab-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.tab-sidebar-card {
+  background: linear-gradient(180deg, #fffdf7, #f8fbff);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 22px;
+  padding: 1.1rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.tab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.tab-button {
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 0.9rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.tab-button strong {
+  color: #0f172a;
+  font-size: 0.98rem;
+}
+
+.tab-button span {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.tab-button:hover {
+  transform: translateY(-1px);
+  border-color: #fdba74;
+  box-shadow: 0 10px 24px rgba(251, 146, 60, 0.12);
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #fff1d6, #e0f2fe);
+  border-color: #fb923c;
+  box-shadow: 0 14px 28px rgba(251, 146, 60, 0.16);
+}
+
+.status-card p {
+  margin: 0.35rem 0;
+  color: #475569;
+}
+
+.tab-content {
+  min-width: 0;
 }
 
 .panel {
@@ -536,12 +603,48 @@
 }
 
 @media (max-width: 1024px) {
-  .layout {
+  .tab-shell {
     grid-template-columns: 1fr;
   }
 
-  .spinners-column {
+  .tab-sidebar {
+    position: static;
+  }
+
+  .tab-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .hero {
+    padding: 1.5rem;
+  }
+
+  .hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .tab-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .custom-builder {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-item {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .weekly-meta.multi {
+    justify-content: flex-start;
   }
 }
 
