@@ -10,7 +10,7 @@ import { FOODS } from './data/foods';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { getCurrentSeason } from './utils/date';
 import { randomId } from './utils/id';
-import { DateTag, SpinnerOption, SpinRecord } from './types';
+import { CustomFoodItem, DateTag, FoodDetailDraft, FoodItem, SpinnerOption, SpinRecord } from './types';
 import './App.css';
 
 const initialFilters: FilterState = {
@@ -29,7 +29,7 @@ type AppTab = 'catalog' | 'daily' | 'custom' | 'weekly' | 'records';
 const tabs: { id: AppTab; label: string; hint: string }[] = [
   { id: 'catalog', label: '食材分类', hint: '按时令、日期和红绿灯筛选' },
   { id: 'daily', label: '每日推荐', hint: '按当前时令抽取今日菜品' },
-  { id: 'custom', label: '随心转盘', hint: '勾选食材并自定义候选池' },
+  { id: 'custom', label: '随心转盘', hint: '勾选食材并录入自定义做法' },
   { id: 'weekly', label: '一周菜谱', hint: '每日 3 道菜的一周搭配' },
   { id: 'records', label: '历史记录', hint: '查看、删除和调整顺序' }
 ];
@@ -40,7 +40,8 @@ function App() {
   const [now, setNow] = useState(() => new Date());
   const [records, setRecords] = useLocalStorage<SpinRecord[]>('spin-records', []);
   const [selectedIds, setSelectedIds] = useLocalStorage<string[]>('custom-selected-ids', defaultSelectedIds);
-  const [customOptions, setCustomOptions] = useLocalStorage<SpinnerOption[]>('custom-options', []);
+  const [customFoods, setCustomFoods] = useLocalStorage<CustomFoodItem[]>('custom-foods', []);
+  const [foodEdits, setFoodEdits] = useLocalStorage<Record<string, FoodDetailDraft>>('food-detail-edits', {});
   const [detailFoodId, setDetailFoodId] = useState<string | null>(null);
 
   const currentSeason = useMemo(() => getCurrentSeason(now), [now]);
@@ -49,7 +50,13 @@ function App() {
     return day === 0 || day === 6 ? 'weekend' : 'weekday';
   }, [now]);
 
-  const foodMap = useMemo(() => new Map(FOODS.map((food) => [food.id, food])), []);
+  const allFoods = useMemo(() => {
+    const mergedBaseFoods = FOODS.map((food) => mergeFoodDraft(food, foodEdits[food.id]));
+    const mergedCustomFoods = customFoods.map((food) => mergeFoodDraft(food, foodEdits[food.id]));
+    return [...mergedBaseFoods, ...mergedCustomFoods];
+  }, [customFoods, foodEdits]);
+
+  const foodMap = useMemo(() => new Map(allFoods.map((food) => [food.id, food])), [allFoods]);
   const detailFood = useMemo(() => (detailFoodId ? foodMap.get(detailFoodId) ?? null : null), [detailFoodId, foodMap]);
 
   useEffect(() => {
@@ -93,6 +100,25 @@ function App() {
     }
   };
 
+  const saveFoodDetail = (id: string, draft: FoodDetailDraft) => {
+    setFoodEdits((prev) => ({
+      ...prev,
+      [id]: draft
+    }));
+
+    setCustomFoods((prev) =>
+      prev.map((food) => {
+        if (food.id !== id) return food;
+        return {
+          ...food,
+          ingredients: draft.ingredients,
+          cookingMethod: draft.cookingMethod,
+          cookingSteps: draft.cookingSteps
+        };
+      })
+    );
+  };
+
   const closeFoodDetail = () => setDetailFoodId(null);
   const hasFood = (id: string) => foodMap.has(id);
 
@@ -101,10 +127,10 @@ function App() {
       <header className="hero">
         <div>
           <p className="eyebrow">饮食推荐助手</p>
-          <h1>吃什么？交给双转盘 + 分类指南</h1>
+          <h1>吃什么？交给分类、转盘和一周菜谱</h1>
           <p className="hero-subtitle">
             当前时令：<strong>{seasonLabels[currentSeason]}</strong> · 日期类型：
-            <strong>{dateTagLabels[currentDateTag]}</strong>（可在分类区切换） · 红绿灯帮你快速识别热量密度。
+            <strong>{dateTagLabels[currentDateTag]}</strong> · 现在自定义菜和详情弹窗都支持编辑做法与食材。
           </p>
         </div>
       </header>
@@ -135,18 +161,18 @@ function App() {
             <p>时令：{seasonLabels[currentSeason]}</p>
             <p>日期：{dateTagLabels[currentDateTag]}</p>
             <p>已记录菜品：{records.length} 条</p>
-            <p>自定义候选：{selectedIds.length + customOptions.length} 项</p>
+            <p>自定义菜品：{customFoods.length} 道</p>
           </section>
         </aside>
 
         <section className="tab-content">
           {activeTab === 'catalog' && (
-            <FoodCatalog foods={FOODS} filters={filters} onFilterChange={handleFilterChange} onSelectFood={showFoodDetail} />
+            <FoodCatalog foods={allFoods} filters={filters} onFilterChange={handleFilterChange} onSelectFood={showFoodDetail} />
           )}
 
           {activeTab === 'daily' && (
             <DailySpinner
-              foods={FOODS}
+              foods={allFoods}
               season={currentSeason}
               onResult={(option) => pushRecord(option, 'daily')}
               onInspectFood={showFoodDetail}
@@ -155,19 +181,17 @@ function App() {
 
           {activeTab === 'custom' && (
             <CustomSpinner
-              foods={FOODS}
+              foods={allFoods}
               selectedIds={selectedIds}
               onSelectedIdsChange={setSelectedIds}
-              customOptions={customOptions}
-              onCustomOptionsChange={setCustomOptions}
+              customFoods={customFoods}
+              onCustomFoodsChange={setCustomFoods}
               onResult={(option) => pushRecord(option, 'custom')}
               onInspectFood={showFoodDetail}
             />
           )}
 
-          {activeTab === 'weekly' && (
-            <WeeklyPlanner foods={FOODS} season={currentSeason} onSelectFood={showFoodDetail} />
-          )}
+          {activeTab === 'weekly' && <WeeklyPlanner foods={allFoods} season={currentSeason} onSelectFood={showFoodDetail} />}
 
           {activeTab === 'records' && (
             <SpinRecordList
@@ -182,16 +206,23 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>
-          红绿灯帮助区分日常频率，页签帮助把功能拆开使用。你可以先筛食材，再切去每日推荐、自定义转盘、
-          一周菜谱或历史记录。
-        </p>
+        <p>你可以先筛食材，再切换到每日推荐、自定义转盘、一周菜谱或历史记录继续操作。</p>
         <p className="footer-note">数据仅作示例参考，请结合个人饮食需求灵活调整。</p>
       </footer>
 
-      <FoodDetailModal food={detailFood} onClose={closeFoodDetail} />
+      <FoodDetailModal food={detailFood} onClose={closeFoodDetail} onSave={saveFoodDetail} />
     </div>
   );
+}
+
+function mergeFoodDraft(food: FoodItem, draft?: FoodDetailDraft): FoodItem {
+  if (!draft) return food;
+  return {
+    ...food,
+    ingredients: draft.ingredients.length ? draft.ingredients : food.ingredients,
+    cookingMethod: draft.cookingMethod || food.cookingMethod,
+    cookingSteps: draft.cookingSteps.length ? draft.cookingSteps : food.cookingSteps
+  };
 }
 
 export default App;

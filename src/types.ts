@@ -28,6 +28,16 @@ export interface FoodItem {
   cookingSteps: CookingStep[];
 }
 
+export interface CustomFoodItem extends FoodItem {
+  origin: 'user';
+}
+
+export interface FoodDetailDraft {
+  ingredients: string[];
+  cookingMethod: string;
+  cookingSteps: CookingStep[];
+}
+
 export interface SpinnerOption {
   id: string;
   label: string;

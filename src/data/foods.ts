@@ -494,5 +494,119 @@ export const FOODS: FoodItem[] = [
       { title: '炖煮入味', duration: '20分钟', detail: '加入土豆、咖喱块和水炖煮。' },
       { title: '加入椰奶', duration: '3分钟', detail: '倒入椰奶再煮 3 分钟，调味即可。' }
     ]
+  },
+  {
+    id: 'pepper-beef',
+    name: '黑椒牛柳',
+    calories: 245,
+    trafficLight: 'yellow',
+    type: 'meat',
+    seasons: ['spring', 'autumn', 'winter'],
+    dateTags: ['weekday', 'weekend'],
+    description: '牛柳滑嫩、黑椒香气足，适合搭配米饭或意面。',
+    nutrients: ['蛋白质', '铁'],
+    ingredients: ['牛里脊', '彩椒', '洋葱', '黑胡椒碎'],
+    cookingMethod: '先把牛柳滑炒至变色，再与彩椒洋葱快速翻炒裹汁。',
+    bestTime: '午餐/晚餐',
+    cookingSteps: [
+      { title: '腌制牛柳', duration: '12分钟', detail: '牛柳切条后加入生抽、淀粉和黑胡椒抓匀静置。' },
+      { title: '滑炒定型', duration: '3分钟', detail: '热锅快炒牛柳至表面变色后先盛出。' },
+      { title: '合炒收汁', duration: '4分钟', detail: '彩椒洋葱炒香后倒回牛柳，淋酱汁翻炒均匀。' }
+    ]
+  },
+  {
+    id: 'broccoli-shrimp',
+    name: '西兰花虾仁',
+    calories: 165,
+    trafficLight: 'green',
+    type: 'meat',
+    seasons: ['spring', 'summer', 'autumn'],
+    dateTags: ['weekday', 'weekend'],
+    description: '高蛋白低脂组合，颜色清爽，也很适合减脂餐。',
+    nutrients: ['蛋白质', '叶酸'],
+    ingredients: ['西兰花', '虾仁', '蒜末', '胡萝卜片'],
+    cookingMethod: '西兰花焯水后与虾仁快炒，保持鲜嫩口感。',
+    bestTime: '健身晚餐',
+    cookingSteps: [
+      { title: '焯水预处理', duration: '3分钟', detail: '西兰花和胡萝卜片焯水后捞出备用。' },
+      { title: '炒香虾仁', duration: '3分钟', detail: '蒜末爆香，下虾仁翻炒至卷曲变色。' },
+      { title: '合炒调味', duration: '2分钟', detail: '倒入西兰花和胡萝卜片，调盐快速翻匀。' }
+    ]
+  },
+  {
+    id: 'corn-ribs',
+    name: '玉米排骨煲',
+    calories: 255,
+    trafficLight: 'yellow',
+    type: 'meat',
+    seasons: ['summer', 'autumn', 'winter'],
+    dateTags: ['weekday', 'weekend'],
+    description: '玉米清甜、排骨鲜香，是很稳妥的家常汤煲。',
+    nutrients: ['蛋白质', '钾'],
+    ingredients: ['排骨', '玉米段', '胡萝卜', '姜片'],
+    cookingMethod: '排骨先焯水，再与玉米胡萝卜慢炖出清甜汤底。',
+    bestTime: '家庭午餐',
+    cookingSteps: [
+      { title: '排骨焯水', duration: '6分钟', detail: '排骨冷水下锅焯出浮沫，冲净备用。' },
+      { title: '炖煮汤底', duration: '45分钟', detail: '排骨、姜片和足量清水一起小火慢炖。' },
+      { title: '加入蔬菜', duration: '20分钟', detail: '放入玉米段和胡萝卜继续炖至软甜。' }
+    ]
+  },
+  {
+    id: 'tofu-skin-salad',
+    name: '凉拌豆皮黄瓜',
+    calories: 118,
+    trafficLight: 'green',
+    type: 'vegetarian',
+    seasons: ['spring', 'summer'],
+    dateTags: ['weekday', 'weekend'],
+    description: '豆皮与黄瓜都很清爽，适合作为夏季快手凉菜。',
+    nutrients: ['植物蛋白', '维生素E'],
+    ingredients: ['豆皮', '黄瓜', '蒜末', '香醋', '辣椒油'],
+    cookingMethod: '豆皮焯水后与黄瓜丝拌匀，最后淋入蒜香料汁。',
+    bestTime: '夏日配菜',
+    cookingSteps: [
+      { title: '豆皮焯熟', duration: '2分钟', detail: '豆皮切丝后焯水 30 秒，捞出沥干。' },
+      { title: '准备配菜', duration: '3分钟', detail: '黄瓜切丝，蒜末与香醋、生抽、辣椒油调匀。' },
+      { title: '拌匀冷藏', duration: '5分钟', detail: '全部食材拌匀后冷藏片刻再食用更爽口。' }
+    ]
+  },
+  {
+    id: 'pumpkin-coconut-soup',
+    name: '南瓜椰香浓汤',
+    calories: 145,
+    trafficLight: 'green',
+    type: 'vegetarian',
+    seasons: ['autumn', 'winter'],
+    dateTags: ['weekday', 'weekend'],
+    description: '南瓜香甜配椰奶，质地浓稠，适合冷天暖胃。',
+    nutrients: ['β-胡萝卜素', '膳食纤维'],
+    ingredients: ['南瓜', '洋葱', '椰奶', '黑胡椒'],
+    cookingMethod: '先把南瓜煮软打泥，再加入椰奶小火煮成浓汤。',
+    bestTime: '下午茶/晚餐配汤',
+    cookingSteps: [
+      { title: '炒香洋葱', duration: '3分钟', detail: '洋葱碎用黄油或橄榄油炒至半透明。' },
+      { title: '煮软南瓜', duration: '12分钟', detail: '加入南瓜块和清水煮至软烂。' },
+      { title: '打泥调味', duration: '5分钟', detail: '搅打成泥后加椰奶煮 2 分钟，撒黑胡椒。' }
+    ]
+  },
+  {
+    id: 'eggplant-stew',
+    name: '番茄土豆炖茄子',
+    calories: 185,
+    trafficLight: 'green',
+    type: 'vegetarian',
+    seasons: ['summer', 'autumn'],
+    dateTags: ['weekday', 'weekend'],
+    description: '家常炖菜，番茄的酸甜能让土豆和茄子更入味。',
+    nutrients: ['钾', '膳食纤维'],
+    ingredients: ['番茄', '土豆', '茄子', '蒜末'],
+    cookingMethod: '番茄炒出汁后，加入土豆和茄子小火焖到软糯。',
+    bestTime: '午餐/晚餐',
+    cookingSteps: [
+      { title: '炒番茄底', duration: '4分钟', detail: '番茄块与蒜末一起炒出浓稠汤汁。' },
+      { title: '加入主料', duration: '5分钟', detail: '放入土豆块和茄子块翻炒均匀。' },
+      { title: '焖煮收汁', duration: '12分钟', detail: '加少量清水盖盖焖煮至软糯，再开盖收汁。' }
+    ]
   }
 ];
