@@ -951,6 +951,12 @@
   gap: 0.85rem;
 }
 
+.step-add-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
 .step-editor-card {
   border: 1px solid var(--color-border);
   border-radius: 14px;

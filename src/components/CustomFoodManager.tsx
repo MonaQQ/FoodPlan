@@ -219,13 +219,6 @@ export function CustomFoodManager({
             onChange={(event) => setForm((prev) => ({ ...prev, cookingMethod: event.target.value }))}
           />
 
-          <div className="step-editor-header">
-            <strong>分步骤编辑</strong>
-            <button className="secondary-btn small" type="button" onClick={addStep}>
-              新增步骤
-            </button>
-          </div>
-
           <div className="step-editor-list">
             {form.cookingSteps.map((step, index) => (
               <div key={`custom-step-${index}`} className="step-editor-card">
@@ -266,6 +259,12 @@ export function CustomFoodManager({
                 </label>
               </div>
             ))}
+          </div>
+
+          <div className="step-add-row">
+            <button className="secondary-btn small" type="button" onClick={addStep}>
+              新增步骤
+            </button>
           </div>
 
           <label>营养亮点</label>

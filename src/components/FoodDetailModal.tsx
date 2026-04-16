@@ -137,13 +137,6 @@ export function FoodDetailModal({ food, onClose, onSave, onToggleFavorite, allow
                       placeholder="先写一段整体说明，比如：先炒香番茄，再加入菌菇煮 10 分钟。"
                     />
 
-                    <div className="step-editor-header">
-                      <strong>分步骤编辑</strong>
-                      <button className="secondary-btn small" type="button" onClick={addStep}>
-                        新增步骤
-                      </button>
-                    </div>
-
                     <div className="step-editor-list">
                       {steps.map((step, index) => (
                         <div key={`step-${index}`} className="step-editor-card">
@@ -184,6 +177,12 @@ export function FoodDetailModal({ food, onClose, onSave, onToggleFavorite, allow
                           </label>
                         </div>
                       ))}
+                    </div>
+
+                    <div className="step-add-row">
+                      <button className="secondary-btn small" type="button" onClick={addStep}>
+                        新增步骤
+                      </button>
                     </div>
                   </>
                 ) : (
