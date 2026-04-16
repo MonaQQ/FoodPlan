@@ -30,8 +30,8 @@ const tabs: { id: AppTab; label: string; hint: string }[] = [
   { id: 'catalog', label: '食材分类', hint: '按时令、日期和红绿灯筛选' },
   { id: 'daily', label: '每日推荐', hint: '按当前时令抽取今日菜品' },
   { id: 'custom', label: '随心转盘', hint: '勾选食材并录入自定义做法' },
-  { id: 'weekly', label: '一周菜谱', hint: '每日 3 道菜的一周搭配' },
-  { id: 'records', label: '历史记录', hint: '查看、删除和调整顺序' }
+  { id: 'weekly', label: '每日 5 道菜', hint: '生成今天的 5 道菜单' },
+  { id: 'records', label: '历史记录', hint: '按日期查看并总结点评' }
 ];
 
 function App() {
@@ -42,6 +42,7 @@ function App() {
   const [selectedIds, setSelectedIds] = useLocalStorage<string[]>('custom-selected-ids', defaultSelectedIds);
   const [customFoods, setCustomFoods] = useLocalStorage<CustomFoodItem[]>('custom-foods', []);
   const [foodEdits, setFoodEdits] = useLocalStorage<Record<string, FoodDetailDraft>>('food-detail-edits', {});
+  const [favoriteIds, setFavoriteIds] = useLocalStorage<string[]>('favorite-food-ids', []);
   const [detailFoodId, setDetailFoodId] = useState<string | null>(null);
 
   const currentSeason = useMemo(() => getCurrentSeason(now), [now]);
@@ -51,13 +52,14 @@ function App() {
   }, [now]);
 
   const allFoods = useMemo(() => {
-    const mergedBaseFoods = FOODS.map((food) => mergeFoodDraft(food, foodEdits[food.id]));
-    const mergedCustomFoods = customFoods.map((food) => mergeFoodDraft(food, foodEdits[food.id]));
+    const mergedBaseFoods = FOODS.map((food) => enrichFood(mergeFoodDraft(food, foodEdits[food.id]), favoriteIds));
+    const mergedCustomFoods = customFoods.map((food) => enrichFood(mergeFoodDraft(food, foodEdits[food.id]), favoriteIds));
     return [...mergedBaseFoods, ...mergedCustomFoods];
-  }, [customFoods, foodEdits]);
+  }, [customFoods, favoriteIds, foodEdits]);
 
   const foodMap = useMemo(() => new Map(allFoods.map((food) => [food.id, food])), [allFoods]);
   const detailFood = useMemo(() => (detailFoodId ? foodMap.get(detailFoodId) ?? null : null), [detailFoodId, foodMap]);
+  const favoriteCount = favoriteIds.filter((id) => foodMap.has(id)).length;
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 60_000);
@@ -68,10 +70,15 @@ function App() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
+  const toggleFavorite = (id: string) => {
+    setFavoriteIds((prev) => (prev.includes(id) ? prev.filter((value) => value !== id) : [...prev, id]));
+  };
+
   const pushRecord = (option: SpinnerOption, source: SpinRecord['source']) => {
+    const matchedFood = foodMap.get(option.id);
     const record: SpinRecord = {
       id: randomId(),
-      option,
+      option: matchedFood ? toRecordOption(matchedFood) : option,
       source,
       timestamp: new Date().toISOString()
     };
@@ -80,18 +87,6 @@ function App() {
 
   const deleteRecord = (id: string) => {
     setRecords((prev) => prev.filter((record) => record.id !== id));
-  };
-
-  const moveRecord = (id: string, direction: 'up' | 'down') => {
-    setRecords((prev) => {
-      const index = prev.findIndex((record) => record.id === id);
-      if (index === -1) return prev;
-      const swapIndex = direction === 'up' ? Math.max(index - 1, 0) : Math.min(index + 1, prev.length - 1);
-      if (swapIndex === index) return prev;
-      const updated = [...prev];
-      [updated[index], updated[swapIndex]] = [updated[swapIndex], updated[index]];
-      return updated;
-    });
   };
 
   const showFoodDetail = (id: string) => {
@@ -127,10 +122,10 @@ function App() {
       <header className="hero">
         <div>
           <p className="eyebrow">饮食推荐助手</p>
-          <h1>吃什么？交给分类、转盘和一周菜谱</h1>
+          <h1>吃什么？交给分类、转盘和每日菜单</h1>
           <p className="hero-subtitle">
-            当前时令：<strong>{seasonLabels[currentSeason]}</strong> · 日期类型：
-            <strong>{dateTagLabels[currentDateTag]}</strong> · 现在自定义菜和详情弹窗都支持编辑做法与食材。
+            当前时令：<strong>{seasonLabels[currentSeason]}</strong> · 日期类型：<strong>{dateTagLabels[currentDateTag]}</strong> ·
+            现在支持心动标记、每日 5 道推荐和按日汇总历史记录。
           </p>
         </div>
       </header>
@@ -161,13 +156,20 @@ function App() {
             <p>时令：{seasonLabels[currentSeason]}</p>
             <p>日期：{dateTagLabels[currentDateTag]}</p>
             <p>已记录菜品：{records.length} 条</p>
+            <p>心动菜品：{favoriteCount} 道</p>
             <p>自定义菜品：{customFoods.length} 道</p>
           </section>
         </aside>
 
         <section className="tab-content">
           {activeTab === 'catalog' && (
-            <FoodCatalog foods={allFoods} filters={filters} onFilterChange={handleFilterChange} onSelectFood={showFoodDetail} />
+            <FoodCatalog
+              foods={allFoods}
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onSelectFood={showFoodDetail}
+              onToggleFavorite={toggleFavorite}
+            />
           )}
 
           {activeTab === 'daily' && (
@@ -176,6 +178,7 @@ function App() {
               season={currentSeason}
               onResult={(option) => pushRecord(option, 'daily')}
               onInspectFood={showFoodDetail}
+              onToggleFavorite={toggleFavorite}
             />
           )}
 
@@ -194,23 +197,17 @@ function App() {
           {activeTab === 'weekly' && <WeeklyPlanner foods={allFoods} season={currentSeason} onSelectFood={showFoodDetail} />}
 
           {activeTab === 'records' && (
-            <SpinRecordList
-              records={records}
-              onDelete={deleteRecord}
-              onMove={moveRecord}
-              onSelectFood={showFoodDetail}
-              hasFood={hasFood}
-            />
+            <SpinRecordList records={records} onDelete={deleteRecord} onSelectFood={showFoodDetail} hasFood={hasFood} />
           )}
         </section>
       </main>
 
       <footer className="footer">
-        <p>你可以先筛食材，再切换到每日推荐、自定义转盘、一周菜谱或历史记录继续操作。</p>
+        <p>你可以先筛食材，再切换到每日推荐、随心转盘、每日 5 道菜或历史记录继续操作。</p>
         <p className="footer-note">数据仅作示例参考，请结合个人饮食需求灵活调整。</p>
       </footer>
 
-      <FoodDetailModal food={detailFood} onClose={closeFoodDetail} onSave={saveFoodDetail} />
+      <FoodDetailModal food={detailFood} onClose={closeFoodDetail} onSave={saveFoodDetail} onToggleFavorite={toggleFavorite} />
     </div>
   );
 }
@@ -222,6 +219,27 @@ function mergeFoodDraft(food: FoodItem, draft?: FoodDetailDraft): FoodItem {
     ingredients: draft.ingredients.length ? draft.ingredients : food.ingredients,
     cookingMethod: draft.cookingMethod || food.cookingMethod,
     cookingSteps: draft.cookingSteps.length ? draft.cookingSteps : food.cookingSteps
+  };
+}
+
+function enrichFood(food: FoodItem, favoriteIds: string[]): FoodItem {
+  return {
+    ...food,
+    isFavorite: favoriteIds.includes(food.id)
+  };
+}
+
+function toRecordOption(food: FoodItem): SpinnerOption {
+  return {
+    id: food.id,
+    label: food.name,
+    calories: food.calories,
+    origin: 'origin' in food && food.origin === 'user' ? 'user' : 'system',
+    meta: {
+      trafficLight: food.trafficLight,
+      type: food.type,
+      isFavorite: food.isFavorite
+    }
   };
 }
 

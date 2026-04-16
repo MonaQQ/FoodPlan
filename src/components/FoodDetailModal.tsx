@@ -6,10 +6,11 @@ type FoodDetailModalProps = {
   food: FoodItem | null;
   onClose: () => void;
   onSave: (id: string, draft: FoodDetailDraft) => void;
+  onToggleFavorite: (id: string) => void;
   allowEdit?: boolean;
 };
 
-export function FoodDetailModal({ food, onClose, onSave, allowEdit = true }: FoodDetailModalProps) {
+export function FoodDetailModal({ food, onClose, onSave, onToggleFavorite, allowEdit = true }: FoodDetailModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [ingredientsText, setIngredientsText] = useState('');
   const [cookingMethod, setCookingMethod] = useState('');
@@ -44,7 +45,16 @@ export function FoodDetailModal({ food, onClose, onSave, allowEdit = true }: Foo
           ×
         </button>
         <p className="eyebrow">食材详情</p>
-        <h3>{food.name}</h3>
+        <div className="modal-title-row">
+          <h3>{food.name}</h3>
+          <button
+            type="button"
+            className={`favorite-toggle ${food.isFavorite ? 'active' : ''}`}
+            onClick={() => onToggleFavorite(food.id)}
+          >
+            {food.isFavorite ? '♥ 已心动' : '♡ 标记心动'}
+          </button>
+        </div>
         <p className="modal-subtitle">{food.description}</p>
 
         <div className="modal-tags">

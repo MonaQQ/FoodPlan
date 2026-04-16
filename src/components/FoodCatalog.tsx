@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { MouseEvent, useMemo } from 'react';
 import { dateTagLabels, seasonLabels, trafficColors, trafficLightLabels, typeLabels } from '../constants';
 import { DateTag, FoodItem, FoodNature, Season, TrafficLight } from '../types';
 
@@ -14,9 +14,10 @@ type FoodCatalogProps = {
   filters: FilterState;
   onFilterChange: <K extends keyof FilterState>(key: K, value: FilterState[K]) => void;
   onSelectFood: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
 };
 
-export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood }: FoodCatalogProps) {
+export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood, onToggleFavorite }: FoodCatalogProps) {
   const filteredFoods = useMemo(() => {
     return foods.filter((food) => {
       const matchSeason = filters.season === 'all' || food.seasons.includes(filters.season);
@@ -27,6 +28,11 @@ export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood }: Fo
     });
   }, [foods, filters]);
 
+  const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>, id: string) => {
+    event.stopPropagation();
+    onToggleFavorite(id);
+  };
+
   return (
     <section className="panel catalog-panel">
       <header className="panel-header">
@@ -34,9 +40,7 @@ export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood }: Fo
           <p className="eyebrow">饮食分类</p>
           <h2>常见食材热量与类别</h2>
         </div>
-        <p className="panel-description">
-          通过时令、日期、红绿灯与素荤分类快速定位，所有食材都标注了热量，方便搭配。
-        </p>
+        <p className="panel-description">通过时令、日期、红绿灯与素荤分类快速定位，支持直接给菜品添加心动标记。</p>
       </header>
 
       <div className="filters-row">
@@ -70,7 +74,7 @@ export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood }: Fo
         {filteredFoods.map((food) => (
           <article
             key={food.id}
-            className="food-card"
+            className={`food-card ${food.isFavorite ? 'favorite' : ''}`}
             role="button"
             tabIndex={0}
             onClick={() => onSelectFood(food.id)}
@@ -82,8 +86,21 @@ export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood }: Fo
             }}
           >
             <div className="food-card-header">
-              <h3>{food.name}</h3>
-              <span className="calorie-tag">{food.calories} kcal / 100g</span>
+              <div className="food-card-title">
+                <h3>{food.name}</h3>
+                {food.isFavorite && <span className="favorite-badge">心动</span>}
+              </div>
+              <div className="food-card-actions">
+                <span className="calorie-tag">{food.calories} kcal / 100g</span>
+                <button
+                  type="button"
+                  className={`favorite-toggle ${food.isFavorite ? 'active' : ''}`}
+                  onClick={(event) => handleFavoriteClick(event, food.id)}
+                  aria-label={food.isFavorite ? `取消心动 ${food.name}` : `标记心动 ${food.name}`}
+                >
+                  {food.isFavorite ? '♥' : '♡'}
+                </button>
+              </div>
             </div>
             <p className="food-description">{food.description}</p>
             <div className="food-tags">
@@ -136,6 +153,6 @@ function Tag({ label, color }: { label: string; color: string }) {
   );
 }
 
-function withAllOption<T extends string>(map: Record<string, string>) {
+function withAllOption(map: Record<string, string>) {
   return [{ value: 'all', label: '全部' }, ...Object.entries(map).map(([value, label]) => ({ value, label }))];
 }

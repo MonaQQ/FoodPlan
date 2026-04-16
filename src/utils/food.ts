@@ -5,10 +5,11 @@ export function toSpinnerOption(food: FoodItem): SpinnerOption {
     id: food.id,
     label: food.name,
     calories: food.calories,
-    origin: 'system',
+    origin: 'origin' in food && food.origin === 'user' ? 'user' : 'system',
     meta: {
       trafficLight: food.trafficLight,
-      type: food.type
+      type: food.type,
+      isFavorite: food.isFavorite
     }
   };
 }

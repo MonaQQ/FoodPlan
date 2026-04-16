@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { FoodItem } from '../types';
+import { formatDate } from '../utils/date';
 import { pickRandom } from '../utils/random';
-
-const DAY_LABELS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
 type WeeklyPlannerProps = {
   foods: FoodItem[];
@@ -11,94 +10,78 @@ type WeeklyPlannerProps = {
   onSelectFood: (id: string) => void;
 };
 
-type WeeklyItem = {
-  day: string;
+type DailyPlan = {
+  date: string;
   foodIds: string[];
 };
 
 export function WeeklyPlanner({ foods, season, onSelectFood }: WeeklyPlannerProps) {
   const seasonalFoods = useMemo(() => foods.filter((food) => food.seasons.includes(season)), [foods, season]);
-  const vegetarians = useMemo(() => foods.filter((food) => food.type === 'vegetarian'), [foods]);
-  const meats = useMemo(() => foods.filter((food) => food.type === 'meat'), [foods]);
-  const [plan, setPlan] = useLocalStorage<WeeklyItem[]>('weekly-plan', []);
+  const [plan, setPlan] = useLocalStorage<DailyPlan>('daily-five-plan', { date: '', foodIds: [] });
+  const today = formatDate(new Date());
 
-  const normalizedPlan = useMemo<WeeklyItem[]>(() => {
-    return plan.map((item) => {
-      if (Array.isArray(item.foodIds)) return item;
-      const legacyId = (item as unknown as { foodId?: string }).foodId;
-      return { day: item.day, foodIds: legacyId ? [legacyId] : [] };
-    });
-  }, [plan]);
-
-  const pickWithFallback = (pool: FoodItem[], fallback: FoodItem[], usedIds: Set<string>) => {
-    const filteredPool = pool.filter((food) => !usedIds.has(food.id));
-    const source = filteredPool.length ? filteredPool : fallback.filter((food) => !usedIds.has(food.id));
-    return pickRandom(source) ?? fallback[0] ?? pool[0] ?? null;
+  const pickWithUnique = (pool: FoodItem[], usedIds: Set<string>) => {
+    const available = pool.filter((food) => !usedIds.has(food.id));
+    const fallback = foods.filter((food) => !usedIds.has(food.id));
+    return pickRandom(available.length ? available : fallback);
   };
 
   const generatePlan = () => {
     const basePool = seasonalFoods.length ? seasonalFoods : foods;
-    const vegPool = basePool.filter((food) => food.type === 'vegetarian');
-    const meatPool = basePool.filter((food) => food.type === 'meat');
-    const nextPlan: WeeklyItem[] = DAY_LABELS.map((day) => {
-      const usedIds = new Set<string>();
-      const picks: string[] = [];
-      const vegPick = pickWithFallback(vegPool, vegetarians, usedIds);
-      if (vegPick) {
-        picks.push(vegPick.id);
-        usedIds.add(vegPick.id);
-      }
-      const meatPick = pickWithFallback(meatPool, meats, usedIds);
-      if (meatPick) {
-        picks.push(meatPick.id);
-        usedIds.add(meatPick.id);
-      }
-      while (picks.length < 3) {
-        const extraPick = pickWithFallback(basePool, foods, usedIds);
-        if (!extraPick) break;
-        picks.push(extraPick.id);
-        usedIds.add(extraPick.id);
-      }
-      return { day, foodIds: picks };
-    });
-    setPlan(nextPlan);
+    const usedIds = new Set<string>();
+    const foodIds: string[] = [];
+
+    while (foodIds.length < 5) {
+      const pick = pickWithUnique(basePool, usedIds);
+      if (!pick) break;
+      usedIds.add(pick.id);
+      foodIds.push(pick.id);
+    }
+
+    setPlan({ date: today, foodIds });
   };
 
-  const resolveFood = (id: string) => foods.find((food) => food.id === id);
+  useEffect(() => {
+    if (plan.date !== today || plan.foodIds.length !== 5) {
+      generatePlan();
+    }
+  }, [plan.date, plan.foodIds.length, today]);
+
+  const resolvedFoods = plan.foodIds.map((id) => foods.find((food) => food.id === id)).filter(Boolean) as FoodItem[];
 
   return (
     <section className="panel weekly-panel">
       <header className="panel-header">
         <div>
-          <p className="eyebrow">一周推荐</p>
-          <h2>时令 7 日菜谱（每日 3 道）</h2>
+          <p className="eyebrow">每日菜单</p>
+          <h2>今日 5 道菜</h2>
         </div>
         <button className="secondary-btn" onClick={generatePlan}>
-          一键生成
+          重新生成
         </button>
       </header>
 
-      {normalizedPlan.length === 0 && <p className="empty-hint">点击“一键生成”即可获得 7 天推荐。</p>}
+      <p className="daily-plan-date">日期：{plan.date || today}</p>
+
+      {resolvedFoods.length === 0 && <p className="empty-hint">点击“重新生成”即可获得今日 5 道推荐。</p>}
 
       <ul className="weekly-list">
-        {normalizedPlan.map((item) => (
-          <li key={item.day} className="weekly-item">
+        {resolvedFoods.map((food, index) => (
+          <li key={food.id} className="weekly-item">
             <div>
-              <strong>{item.day}</strong>
+              <strong>第 {index + 1} 道</strong>
+              <p>{food.name}</p>
             </div>
             <div className="weekly-meta multi">
-              {item.foodIds.slice(0, 3).map((foodId) => {
-                const food = resolveFood(foodId);
-                if (!food) return null;
-                return (
-                  <span key={food.id} className="weekly-chip">
-                    <button className="ghost-link" onClick={() => onSelectFood(food.id)}>
-                      {food.name}
-                    </button>
-                    <small>{food.type === 'meat' ? '荤' : '素'} · {food.bestTime}</small>
-                  </span>
-                );
-              })}
+              <span className="weekly-chip">
+                <button className="ghost-link" onClick={() => onSelectFood(food.id)}>
+                  查看详情
+                </button>
+                <small>
+                  {food.type === 'meat' ? '荤菜' : '素菜'} · {food.bestTime}
+                  {food.isFavorite ? ' · 心动' : ''}
+                </small>
+              </span>
             </div>
           </li>
         ))}

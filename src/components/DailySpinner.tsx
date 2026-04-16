@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { seasonLabels, trafficLightLabels, trafficColors } from '../constants';
+import { seasonLabels, trafficColors, trafficLightLabels } from '../constants';
 import { FoodItem, Season, SpinnerOption } from '../types';
 import { toSpinnerOption } from '../utils/food';
 import { pickRandom } from '../utils/random';
@@ -9,12 +9,11 @@ type DailySpinnerProps = {
   season: Season;
   onResult: (option: SpinnerOption) => void;
   onInspectFood: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
 };
 
-export function DailySpinner({ foods, season, onResult, onInspectFood }: DailySpinnerProps) {
-  const options = useMemo(() => {
-    return foods.filter((food) => food.seasons.includes(season)).map(toSpinnerOption);
-  }, [foods, season]);
+export function DailySpinner({ foods, season, onResult, onInspectFood, onToggleFavorite }: DailySpinnerProps) {
+  const options = useMemo(() => foods.filter((food) => food.seasons.includes(season)).map(toSpinnerOption), [foods, season]);
 
   const [isSpinning, setIsSpinning] = useState(false);
   const [rollingLabel, setRollingLabel] = useState('点击开始转盘');
@@ -41,7 +40,7 @@ export function DailySpinner({ foods, season, onResult, onInspectFood }: DailySp
         const finalOption = pickRandom(options);
         if (finalOption) {
           setLastResult(finalOption);
-          setRollingLabel(`🎉 ${finalOption.label}`);
+          setRollingLabel(`今日推荐：${finalOption.label}`);
           onResult(finalOption);
         }
         setIsSpinning(false);
@@ -56,9 +55,7 @@ export function DailySpinner({ foods, season, onResult, onInspectFood }: DailySp
           <p className="eyebrow">每日推荐</p>
           <h2>{seasonLabels[season]}时令转盘</h2>
         </div>
-        <p className="panel-description">
-          根据系统时间自动匹配当前时令菜，只需点击按钮即可获得今日灵感菜。
-        </p>
+        <p className="panel-description">根据当前时令抽取今日灵感菜，也可以顺手把喜欢的菜标成心动菜单。</p>
       </header>
 
       <div className="spinner-wheel">
@@ -68,9 +65,7 @@ export function DailySpinner({ foods, season, onResult, onInspectFood }: DailySp
         <button className="primary-btn" onClick={handleSpin} disabled={!options.length || isSpinning}>
           {isSpinning ? '选择中…' : '开始转盘'}
         </button>
-        <p className="candidate-hint">
-          当前候选：{options.length ? options.length : '暂无'} 道菜
-        </p>
+        <p className="candidate-hint">当前候选：{options.length ? options.length : '暂无'} 道菜</p>
       </div>
 
       <div className="candidate-list">
@@ -79,15 +74,21 @@ export function DailySpinner({ foods, season, onResult, onInspectFood }: DailySp
             <div>
               <strong>{option.label}</strong>
               <span className="candidate-calorie">{option.calories ?? '--'} kcal</span>
+              {option.meta?.isFavorite && <span className="inline-favorite">心动</span>}
             </div>
-            {option.meta?.trafficLight && (
-              <span className="mini-tag" style={{ color: trafficColors[option.meta.trafficLight] }}>
-                {trafficLightLabels[option.meta.trafficLight]}
-              </span>
-            )}
-            <button className="ghost-link" onClick={() => onInspectFood(option.id)}>
-              查看
-            </button>
+            <div className="candidate-actions">
+              {option.meta?.trafficLight && (
+                <span className="mini-tag" style={{ color: trafficColors[option.meta.trafficLight] }}>
+                  {trafficLightLabels[option.meta.trafficLight]}
+                </span>
+              )}
+              <button className="ghost-link" onClick={() => onToggleFavorite(option.id)}>
+                {option.meta?.isFavorite ? '取消心动' : '标记心动'}
+              </button>
+              <button className="ghost-link" onClick={() => onInspectFood(option.id)}>
+                查看
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -97,11 +98,16 @@ export function DailySpinner({ foods, season, onResult, onInspectFood }: DailySp
           <h3>今日菜品：{lastResult.label}</h3>
           <p>
             估算热量：<strong>{lastResult.calories ?? '--'} kcal</strong> · 红绿灯：
-            {lastResult.meta?.trafficLight ? trafficLightLabels[lastResult.meta.trafficLight] : '—'}
+            {lastResult.meta?.trafficLight ? trafficLightLabels[lastResult.meta.trafficLight] : '--'}
           </p>
-          <button className="ghost-link" onClick={() => onInspectFood(lastResult.id)}>
-            查看详细食材
-          </button>
+          <div className="result-actions">
+            <button className="ghost-link" onClick={() => onToggleFavorite(lastResult.id)}>
+              {lastResult.meta?.isFavorite ? '取消心动' : '加入心动菜单'}
+            </button>
+            <button className="ghost-link" onClick={() => onInspectFood(lastResult.id)}>
+              查看详细食材
+            </button>
+          </div>
         </div>
       )}
     </section>

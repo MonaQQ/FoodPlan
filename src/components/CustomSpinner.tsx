@@ -45,6 +45,12 @@ export function CustomSpinner({
     };
   }, []);
 
+  const systemFoods = useMemo(() => foods.filter((food) => !('origin' in food && food.origin === 'user')), [foods]);
+  const favoriteSystemFoodIds = useMemo(
+    () => systemFoods.filter((food) => food.isFavorite).map((food) => food.id),
+    [systemFoods]
+  );
+
   const systemPool = useMemo(() => {
     return selectedIds
       .map((id) => foods.find((item) => item.id === id))
@@ -62,6 +68,22 @@ export function CustomSpinner({
       return;
     }
     onSelectedIdsChange([...selectedIds, id]);
+  };
+
+  const selectAllSystemFoods = () => {
+    onSelectedIdsChange(systemFoods.map((food) => food.id));
+  };
+
+  const selectAllFavoriteFoods = () => {
+    onSelectedIdsChange(favoriteSystemFoodIds);
+  };
+
+  const clearCandidates = () => {
+    onSelectedIdsChange([]);
+    onCustomFoodsChange([]);
+    setRandomPreview([]);
+    setLastResult(null);
+    setRollingLabel('候选已清空，请重新选择食材');
   };
 
   const handleAddCustomFood = (event: FormEvent<HTMLFormElement>) => {
@@ -91,7 +113,8 @@ export function CustomSpinner({
           duration: '按需',
           detail: cookingMethod
         }
-      ]
+      ],
+      isFavorite: false
     };
 
     onCustomFoodsChange([...customFoods, nextFood]);
@@ -135,7 +158,7 @@ export function CustomSpinner({
 
   const handleRandomPreview = () => {
     const count = Math.max(1, Math.min(10, randomCount || 1));
-    const pool = foods.slice();
+    const pool = systemFoods.slice();
     const picked: SpinnerOption[] = [];
     const used = new Set<string>();
 
@@ -162,20 +185,31 @@ export function CustomSpinner({
           <p className="eyebrow">自定义</p>
           <h2>我的随心转盘</h2>
         </div>
-        <p className="panel-description">
-          可以勾选系统菜，也可以录入自己的食材、所需食材和烹饪方式。后续还能在详情弹窗里继续修改。
-        </p>
+        <p className="panel-description">支持一键全选、一键全选心动菜单，以及清空当前候选池。</p>
       </header>
 
       <div className="custom-builder">
         <div className="select-column">
-          <label>从系统食材中勾选</label>
+          <label>从系统菜品中勾选</label>
+          <div className="bulk-actions">
+            <button className="secondary-btn small" type="button" onClick={selectAllSystemFoods}>
+              一键全选
+            </button>
+            <button className="secondary-btn small" type="button" onClick={selectAllFavoriteFoods}>
+              一键全选心动菜单
+            </button>
+          </div>
           <div className="option-list">
-            {foods.map((food) => (
+            {systemFoods.map((food) => (
               <label key={food.id} className="option-row">
                 <input type="checkbox" checked={selectedIds.includes(food.id)} onChange={() => toggleSystemFood(food.id)} />
                 <span>
-                  {food.name} · {typeLabels[food.type]} · {food.calories} kcal
+                  {food.name}
+                  {food.isFavorite ? ' · 心动' : ''}
+                  {' · '}
+                  {typeLabels[food.type]}
+                  {' · '}
+                  {food.calories} kcal
                 </span>
               </label>
             ))}
@@ -210,7 +244,7 @@ export function CustomSpinner({
             onChange={(event) => setForm((prev) => ({ ...prev, cookingMethod: event.target.value }))}
           />
           <button className="secondary-btn" type="submit">
-            添加到自定义菜库
+            添加到候选池
           </button>
         </form>
       </div>
@@ -253,9 +287,14 @@ export function CustomSpinner({
       </div>
 
       <div className="selected-pool">
-        <p>
-          当前候选 <strong>{optionPool.length}</strong> 道菜
-        </p>
+        <div className="selected-header">
+          <p>
+            当前候选 <strong>{optionPool.length}</strong> 道菜
+          </p>
+          <button className="ghost-link danger-link" type="button" onClick={clearCandidates} disabled={!optionPool.length}>
+            一键清除
+          </button>
+        </div>
         <div className="selected-chips">
           {systemPool.map((option) => (
             <button key={option.id} className="chip ghost-chip" type="button" onClick={() => onInspectFood(option.id)}>

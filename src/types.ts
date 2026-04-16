@@ -26,6 +26,7 @@ export interface FoodItem {
   cookingMethod: string;
   bestTime: string;
   cookingSteps: CookingStep[];
+  isFavorite?: boolean;
 }
 
 export interface CustomFoodItem extends FoodItem {
@@ -46,6 +47,7 @@ export interface SpinnerOption {
   meta?: {
     trafficLight?: TrafficLight;
     type?: FoodNature;
+    isFavorite?: boolean;
   };
 }
 
