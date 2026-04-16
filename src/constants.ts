@@ -14,9 +14,9 @@ export const dateTagLabels: Record<DateTag, string> = {
 };
 
 export const trafficLightLabels: Record<TrafficLight, string> = {
-  green: '绿色（可常吃）',
-  yellow: '黄色（适量）',
-  red: '红色（偶尔）'
+  green: '绿色，可常吃',
+  yellow: '黄色，适量吃',
+  red: '红色，偶尔吃'
 };
 
 export const typeLabels: Record<FoodNature, string> = {

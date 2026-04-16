@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { dateTagLabels, seasonLabels, trafficLightLabels, typeLabels } from '../constants';
-import { FoodDetailDraft, FoodItem } from '../types';
+import { CookingStep, FoodDetailDraft, FoodItem } from '../types';
 
 type FoodDetailModalProps = {
   food: FoodItem | null;
@@ -14,14 +14,14 @@ export function FoodDetailModal({ food, onClose, onSave, onToggleFavorite, allow
   const [isEditing, setIsEditing] = useState(false);
   const [ingredientsText, setIngredientsText] = useState('');
   const [cookingMethod, setCookingMethod] = useState('');
-  const [stepsText, setStepsText] = useState('');
+  const [steps, setSteps] = useState<CookingStep[]>([]);
 
   useEffect(() => {
     if (!food) return;
     setIsEditing(false);
     setIngredientsText(food.ingredients.join('\n'));
     setCookingMethod(food.cookingMethod);
-    setStepsText(serializeSteps(food.cookingSteps));
+    setSteps(food.cookingSteps.length ? food.cookingSteps : [createEmptyStep(1)]);
   }, [food]);
 
   if (!food) return null;
@@ -29,13 +29,28 @@ export function FoodDetailModal({ food, onClose, onSave, onToggleFavorite, allow
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const ingredients = splitLines(ingredientsText);
-    const steps = parseSteps(stepsText, cookingMethod);
+    const normalizedSteps = normalizeSteps(steps, cookingMethod);
     onSave(food.id, {
       ingredients,
       cookingMethod: cookingMethod.trim() || '按个人习惯烹饪。',
-      cookingSteps: steps
+      cookingSteps: normalizedSteps
     });
     setIsEditing(false);
+  };
+
+  const updateStep = (index: number, key: keyof CookingStep, value: string) => {
+    setSteps((prev) => prev.map((step, stepIndex) => (stepIndex === index ? { ...step, [key]: value } : step)));
+  };
+
+  const addStep = () => {
+    setSteps((prev) => [...prev, createEmptyStep(prev.length + 1)]);
+  };
+
+  const removeStep = (index: number) => {
+    setSteps((prev) => {
+      if (prev.length <= 1) return [createEmptyStep(1)];
+      return prev.filter((_, stepIndex) => stepIndex !== index);
+    });
   };
 
   return (
@@ -118,14 +133,57 @@ export function FoodDetailModal({ food, onClose, onSave, onToggleFavorite, allow
                     rows={4}
                     value={cookingMethod}
                     onChange={(event) => setCookingMethod(event.target.value)}
-                    placeholder="描述整体做法"
+                    placeholder="先写一段整体说明，比如：先炒香番茄，再加入菌菇煮 10 分钟。"
                   />
-                  <textarea
-                    rows={6}
-                    value={stepsText}
-                    onChange={(event) => setStepsText(event.target.value)}
-                    placeholder="步骤格式：步骤名|时长|说明"
-                  />
+
+                  <div className="step-editor-header">
+                    <strong>分步骤编辑</strong>
+                    <button className="secondary-btn small" type="button" onClick={addStep}>
+                      新增步骤
+                    </button>
+                  </div>
+
+                  <div className="step-editor-list">
+                    {steps.map((step, index) => (
+                      <div key={`step-${index}`} className="step-editor-card">
+                        <div className="step-editor-top">
+                          <strong>步骤 {index + 1}</strong>
+                          <button className="ghost-link danger-link" type="button" onClick={() => removeStep(index)}>
+                            删除
+                          </button>
+                        </div>
+                        <div className="form-grid">
+                          <label>
+                            步骤名
+                            <input
+                              type="text"
+                              value={step.title}
+                              onChange={(event) => updateStep(index, 'title', event.target.value)}
+                              placeholder={`步骤 ${index + 1}`}
+                            />
+                          </label>
+                          <label>
+                            时长
+                            <input
+                              type="text"
+                              value={step.duration}
+                              onChange={(event) => updateStep(index, 'duration', event.target.value)}
+                              placeholder="如：5分钟"
+                            />
+                          </label>
+                        </div>
+                        <label className="step-editor-detail">
+                          说明
+                          <textarea
+                            rows={3}
+                            value={step.detail}
+                            onChange={(event) => updateStep(index, 'detail', event.target.value)}
+                            placeholder="写这一步具体怎么做"
+                          />
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </>
               ) : (
                 <>
@@ -157,18 +215,16 @@ function splitLines(value: string) {
     .filter(Boolean);
 }
 
-function serializeSteps(steps: FoodItem['cookingSteps']) {
-  if (!steps.length) return '';
-  return steps.map((step) => `${step.title}|${step.duration}|${step.detail}`).join('\n');
-}
+function normalizeSteps(steps: CookingStep[], fallbackMethod: string) {
+  const filtered = steps
+    .map((step, index) => ({
+      title: step.title.trim() || `步骤 ${index + 1}`,
+      duration: step.duration.trim() || '按需',
+      detail: step.detail.trim()
+    }))
+    .filter((step) => step.title || step.detail);
 
-function parseSteps(value: string, fallbackMethod: string) {
-  const lines = value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  if (!lines.length) {
+  if (!filtered.length) {
     return [
       {
         title: '烹饪步骤',
@@ -178,12 +234,17 @@ function parseSteps(value: string, fallbackMethod: string) {
     ];
   }
 
-  return lines.map((line, index) => {
-    const [title, duration, detail] = line.split('|').map((item) => item?.trim());
-    return {
-      title: title || `步骤 ${index + 1}`,
-      duration: duration || '按需',
-      detail: detail || title || fallbackMethod || '按个人习惯烹饪。'
-    };
-  });
+  return filtered.map((step, index) => ({
+    title: step.title || `步骤 ${index + 1}`,
+    duration: step.duration || '按需',
+    detail: step.detail || fallbackMethod || '按个人习惯烹饪。'
+  }));
+}
+
+function createEmptyStep(index: number): CookingStep {
+  return {
+    title: `步骤 ${index}`,
+    duration: '',
+    detail: ''
+  };
 }

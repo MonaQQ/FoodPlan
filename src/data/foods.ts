@@ -608,5 +608,81 @@ export const FOODS: FoodItem[] = [
       { title: '加入主料', duration: '5分钟', detail: '放入土豆块和茄子块翻炒均匀。' },
       { title: '焖煮收汁', duration: '12分钟', detail: '加少量清水盖盖焖煮至软糯，再开盖收汁。' }
     ]
+  },
+  {
+    id: 'winter-melon-meatball-soup',
+    name: '冬瓜丸子汤',
+    calories: 135,
+    trafficLight: 'green',
+    type: 'meat',
+    seasons: ['summer', 'autumn'],
+    dateTags: ['weekday', 'weekend'],
+    description: '汤清味鲜，冬瓜清爽，适合想吃得轻一点的时候。',
+    nutrients: ['蛋白质', '钾'],
+    ingredients: ['冬瓜', '猪肉丸', '姜丝', '葱花'],
+    cookingMethod: '先煮汤底，再下丸子和冬瓜，小火煮到冬瓜透明。',
+    bestTime: '晚餐配汤',
+    cookingSteps: [
+      { title: '煮开汤底', duration: '5分钟', detail: '锅中加水和姜丝，先煮开。' },
+      { title: '下肉丸', duration: '4分钟', detail: '放入猪肉丸煮至浮起。' },
+      { title: '加入冬瓜', duration: '6分钟', detail: '放入冬瓜片，小火煮到半透明后调味出锅。' }
+    ]
+  },
+  {
+    id: 'seaweed-egg-soup',
+    name: '紫菜蛋花汤',
+    calories: 90,
+    trafficLight: 'green',
+    type: 'vegetarian',
+    seasons: ['spring', 'summer', 'autumn', 'winter'],
+    dateTags: ['weekday', 'weekend'],
+    description: '快手家常汤，清淡顺口，也很适合做工作日晚餐。',
+    nutrients: ['碘', '蛋白质'],
+    ingredients: ['紫菜', '鸡蛋', '虾皮', '香油'],
+    cookingMethod: '汤底烧开后淋入蛋液，加入紫菜和虾皮即可。',
+    bestTime: '工作日晚餐',
+    cookingSteps: [
+      { title: '准备汤底', duration: '3分钟', detail: '锅中加水和少许虾皮烧开。' },
+      { title: '淋入蛋液', duration: '1分钟', detail: '沿锅边缓慢倒入蛋液，形成蛋花。' },
+      { title: '加入紫菜', duration: '1分钟', detail: '放入紫菜、盐和香油，稍微滚开即可。' }
+    ]
+  },
+  {
+    id: 'tomato-beef-soup',
+    name: '番茄牛肉汤',
+    calories: 185,
+    trafficLight: 'yellow',
+    type: 'meat',
+    seasons: ['autumn', 'winter', 'spring'],
+    dateTags: ['weekday', 'weekend'],
+    description: '番茄酸甜开胃，牛肉鲜香，适合做一锅式暖胃汤。',
+    nutrients: ['蛋白质', '番茄红素'],
+    ingredients: ['番茄', '牛肉片', '洋葱', '黑胡椒'],
+    cookingMethod: '番茄炒出汁后加水煮成汤底，再下牛肉片汆熟。',
+    bestTime: '午餐/晚餐',
+    cookingSteps: [
+      { title: '炒香番茄', duration: '4分钟', detail: '番茄和洋葱下锅炒软，炒出汤汁。' },
+      { title: '煮汤底', duration: '8分钟', detail: '加入热水煮开，调入盐和黑胡椒。' },
+      { title: '汆熟牛肉', duration: '2分钟', detail: '放入牛肉片煮到变色即可关火。' }
+    ]
+  },
+  {
+    id: 'miso-tofu-soup',
+    name: '味噌豆腐汤',
+    calories: 110,
+    trafficLight: 'green',
+    type: 'vegetarian',
+    seasons: ['spring', 'autumn', 'winter'],
+    dateTags: ['weekday', 'weekend'],
+    description: '偏日式风味的轻汤，豆腐柔软，适合清爽的一餐。',
+    nutrients: ['植物蛋白', '钙'],
+    ingredients: ['味噌', '嫩豆腐', '海带芽', '葱花'],
+    cookingMethod: '先煮海带芽和豆腐，再关小火化开味噌，避免久煮。',
+    bestTime: '轻食晚餐',
+    cookingSteps: [
+      { title: '煮开清汤', duration: '4分钟', detail: '锅中加水煮开，放入海带芽。' },
+      { title: '加入豆腐', duration: '3分钟', detail: '放入嫩豆腐块，小火保持微沸。' },
+      { title: '化开味噌', duration: '2分钟', detail: '舀出少量热汤化开味噌后回锅，撒葱花即可。' }
+    ]
   }
 ];

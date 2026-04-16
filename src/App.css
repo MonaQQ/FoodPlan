@@ -429,6 +429,14 @@
   padding: 0.4rem 0.6rem;
 }
 
+.input-column select,
+.inline-number-control input {
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+}
+
 .input-column textarea,
 .modal-form textarea {
   border-radius: 12px;
@@ -479,6 +487,13 @@
   cursor: pointer;
   background: #dbeafe;
   color: #0f172a;
+}
+
+.custom-chip {
+  border: none;
+  cursor: pointer;
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .record-list {
@@ -590,6 +605,10 @@
   margin: 0 0.3rem;
 }
 
+.spinner-selector-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
 .random-results {
   display: flex;
   flex-direction: column;
@@ -610,6 +629,25 @@
 .daily-plan-date {
   margin: 0;
   color: #64748b;
+}
+
+.weekly-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.inline-number-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.inline-number-control input {
+  width: 76px;
 }
 
 .weekly-item {
@@ -660,6 +698,19 @@
 .weekly-chip small {
   font-size: 0.7rem;
   color: #475569;
+}
+
+.weekly-grid {
+  gap: 1rem;
+}
+
+.weekly-day-card {
+  align-items: flex-start;
+}
+
+.weekly-chip-grid {
+  gap: 0.5rem;
+  justify-content: flex-start;
 }
 
 .footer-note {
@@ -824,6 +875,94 @@
   border-radius: 999px;
 }
 
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.form-grid label,
+.season-picker,
+.saved-food-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.season-picker-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.season-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.form-actions,
+.saved-food-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.custom-saved-list {
+  max-height: 720px;
+}
+
+.saved-food-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.saved-food-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.step-editor-header,
+.step-editor-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.step-editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.step-editor-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.step-editor-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
 .modal-tags {
   display: flex;
   flex-wrap: wrap;
@@ -901,5 +1040,10 @@
 @media (max-width: 720px) {
   .record-group-header {
     flex-direction: column;
+  }
+
+  .form-grid,
+  .spinner-selector-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -33,6 +33,17 @@ export interface CustomFoodItem extends FoodItem {
   origin: 'user';
 }
 
+export interface WeeklyPlanDay {
+  date: string;
+  foodIds: string[];
+}
+
+export interface WeeklyPlan {
+  startDate: string;
+  dailyCount: number;
+  days: WeeklyPlanDay[];
+}
+
 export interface FoodDetailDraft {
   ingredients: string[];
   cookingMethod: string;
