@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { CustomFoodManager } from './components/CustomFoodManager';
 import { CustomSpinner } from './components/CustomSpinner';
 import { DailySpinner } from './components/DailySpinner';
@@ -28,6 +28,21 @@ const defaultSelectedSystemIds = FOODS.filter((food) => food.type === 'meat')
 
 type AppTab = 'catalog' | 'favorites' | 'daily' | 'spinner' | 'customFoods' | 'weekly' | 'records';
 
+type AppBackupData = {
+  version: 1;
+  exportedAt: string;
+  data: {
+    records: SpinRecord[];
+    selectedSystemIds: string[];
+    selectedCustomIds: string[];
+    customFoods: CustomFoodItem[];
+    foodEdits: Record<string, FoodDetailDraft>;
+    favoriteIds: string[];
+    weeklyDailyCount: number;
+    weeklyPlan: unknown;
+  };
+};
+
 const tabs: { id: AppTab; label: string; hint: string }[] = [
   { id: 'catalog', label: '食材分类', hint: '按时令、日期和红绿灯筛选' },
   { id: 'favorites', label: '心动菜单', hint: '集中查看已心动的菜品' },
@@ -49,6 +64,7 @@ function App() {
   const [foodEdits, setFoodEdits] = useLocalStorage<Record<string, FoodDetailDraft>>('food-detail-edits', {});
   const [favoriteIds, setFavoriteIds] = useLocalStorage<string[]>('favorite-food-ids', []);
   const [detailFoodId, setDetailFoodId] = useState<string | null>(null);
+  const backupInputRef = useRef<HTMLInputElement | null>(null);
 
   const currentSeason = useMemo(() => getCurrentSeason(now), [now]);
   const currentDateTag = useMemo<DateTag>(() => {
@@ -141,6 +157,65 @@ function App() {
     );
   };
 
+  const handleExportData = () => {
+    const payload: AppBackupData = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: {
+        records,
+        selectedSystemIds,
+        selectedCustomIds,
+        customFoods,
+        foodEdits,
+        favoriteIds,
+        weeklyDailyCount: readStorageValue<number>('weekly-daily-count', 3),
+        weeklyPlan: readStorageValue('weekly-plan-v2', {
+          startDate: '',
+          dailyCount: 3,
+          days: []
+        })
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `food-app-backup-${formatBackupDate(new Date())}.json`;
+    anchor.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleImportClick = () => {
+    backupInputRef.current?.click();
+  };
+
+  const handleImportData = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as Partial<AppBackupData>;
+      const backup = normalizeBackupData(parsed);
+
+      setRecords(backup.records);
+      setSelectedSystemIds(backup.selectedSystemIds);
+      setSelectedCustomIds(backup.selectedCustomIds);
+      setCustomFoods(backup.customFoods);
+      setFoodEdits(backup.foodEdits);
+      setFavoriteIds(backup.favoriteIds);
+
+      window.localStorage.setItem('weekly-daily-count', JSON.stringify(backup.weeklyDailyCount));
+      window.localStorage.setItem('weekly-plan-v2', JSON.stringify(backup.weeklyPlan));
+
+      window.alert('数据已恢复。自定义菜品、修改记录、收藏、历史记录和周计划都已导入。');
+    } catch {
+      window.alert('导入失败，请确认选择的是本应用导出的 JSON 备份文件。');
+    }
+  };
+
   return (
     <div className="app-shell">
       <header className="hero">
@@ -183,6 +258,19 @@ function App() {
             <p>心动菜品：{favoriteFoods.length} 道</p>
             <p>自定义菜品：{mergedCustomFoods.length} 道</p>
             <p>转盘候选：{selectedSystemIds.length + selectedCustomIds.length} 道</p>
+          </section>
+          <section className="tab-sidebar-card">
+            <p className="eyebrow">数据备份</p>
+            <p>页面刷新不会丢，但想长期保存时，建议定期导出备份文件。</p>
+            <div className="form-actions backup-actions">
+              <button className="secondary-btn" type="button" onClick={handleExportData}>
+                导出全部数据
+              </button>
+              <button className="secondary-btn" type="button" onClick={handleImportClick}>
+                导入备份
+              </button>
+            </div>
+            <input ref={backupInputRef} type="file" accept="application/json,.json" hidden onChange={handleImportData} />
           </section>
         </aside>
 
@@ -251,6 +339,52 @@ function App() {
       <FoodDetailModal food={detailFood} onClose={() => setDetailFoodId(null)} onSave={saveFoodDetail} onToggleFavorite={toggleFavorite} />
     </div>
   );
+}
+
+function readStorageValue<T>(key: string, fallback: T): T {
+  try {
+    const stored = window.localStorage.getItem(key);
+    return stored ? (JSON.parse(stored) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function formatBackupDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}${month}${day}-${hours}${minutes}${seconds}`;
+}
+
+function normalizeBackupData(backup: Partial<AppBackupData>) {
+  if (!backup || typeof backup !== 'object' || !backup.data || typeof backup.data !== 'object') {
+    throw new Error('invalid backup');
+  }
+
+  return {
+    records: Array.isArray(backup.data.records) ? backup.data.records : [],
+    selectedSystemIds: Array.isArray(backup.data.selectedSystemIds) ? backup.data.selectedSystemIds : defaultSelectedSystemIds,
+    selectedCustomIds: Array.isArray(backup.data.selectedCustomIds) ? backup.data.selectedCustomIds : [],
+    customFoods: Array.isArray(backup.data.customFoods) ? backup.data.customFoods : [],
+    foodEdits: isObjectRecord(backup.data.foodEdits) ? (backup.data.foodEdits as Record<string, FoodDetailDraft>) : {},
+    favoriteIds: Array.isArray(backup.data.favoriteIds) ? backup.data.favoriteIds : [],
+    weeklyDailyCount: typeof backup.data.weeklyDailyCount === 'number' ? backup.data.weeklyDailyCount : 3,
+    weeklyPlan: isObjectRecord(backup.data.weeklyPlan)
+      ? backup.data.weeklyPlan
+      : {
+          startDate: '',
+          dailyCount: 3,
+          days: []
+        }
+  };
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function mergeFoodDraft(food: FoodItem, draft?: FoodDetailDraft): FoodItem {

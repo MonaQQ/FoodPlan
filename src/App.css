@@ -108,6 +108,10 @@
   color: #475569;
 }
 
+.backup-actions {
+  margin-top: 0.85rem;
+}
+
 .tab-content {
   min-width: 0;
 }
