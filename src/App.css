@@ -779,11 +779,13 @@
 .modal-card {
   background: #fff;
   border-radius: 20px;
-  max-width: 520px;
-  width: min(520px, 100%);
+  max-width: 680px;
+  width: min(680px, 100%);
   padding: 1.75rem;
   position: relative;
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+  max-height: min(88vh, 920px);
+  overflow: hidden;
 }
 
 .modal-close {
@@ -1028,6 +1030,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-height: 0;
 }
 
 .modal-form-actions {
@@ -1035,6 +1038,12 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   margin-top: 0.25rem;
+}
+
+.modal-content-scroll {
+  overflow-y: auto;
+  max-height: min(50vh, 520px);
+  padding-right: 0.35rem;
 }
 
 @media (max-width: 720px) {

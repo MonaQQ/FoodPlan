@@ -107,100 +107,102 @@ export function FoodDetailModal({ food, onClose, onSave, onToggleFavorite, allow
               )}
             </div>
 
-            <section className="modal-section">
-              <h4>所需食材</h4>
-              {isEditing ? (
-                <textarea
-                  rows={5}
-                  value={ingredientsText}
-                  onChange={(event) => setIngredientsText(event.target.value)}
-                  placeholder="每行一个食材，或用逗号分隔"
-                />
-              ) : (
-                <ul>
-                  {food.ingredients.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            <section className="modal-section">
-              <h4>烹饪方式</h4>
-              {isEditing ? (
-                <>
+            <div className="modal-content-scroll">
+              <section className="modal-section">
+                <h4>所需食材</h4>
+                {isEditing ? (
                   <textarea
-                    rows={4}
-                    value={cookingMethod}
-                    onChange={(event) => setCookingMethod(event.target.value)}
-                    placeholder="先写一段整体说明，比如：先炒香番茄，再加入菌菇煮 10 分钟。"
+                    rows={8}
+                    value={ingredientsText}
+                    onChange={(event) => setIngredientsText(event.target.value)}
+                    placeholder="每行一个食材，或用逗号分隔"
                   />
+                ) : (
+                  <ul>
+                    {food.ingredients.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </section>
 
-                  <div className="step-editor-header">
-                    <strong>分步骤编辑</strong>
-                    <button className="secondary-btn small" type="button" onClick={addStep}>
-                      新增步骤
-                    </button>
-                  </div>
+              <section className="modal-section">
+                <h4>烹饪方式</h4>
+                {isEditing ? (
+                  <>
+                    <textarea
+                      rows={5}
+                      value={cookingMethod}
+                      onChange={(event) => setCookingMethod(event.target.value)}
+                      placeholder="先写一段整体说明，比如：先炒香番茄，再加入菌菇煮 10 分钟。"
+                    />
 
-                  <div className="step-editor-list">
-                    {steps.map((step, index) => (
-                      <div key={`step-${index}`} className="step-editor-card">
-                        <div className="step-editor-top">
-                          <strong>步骤 {index + 1}</strong>
-                          <button className="ghost-link danger-link" type="button" onClick={() => removeStep(index)}>
-                            删除
-                          </button>
-                        </div>
-                        <div className="form-grid">
-                          <label>
-                            步骤名
-                            <input
-                              type="text"
-                              value={step.title}
-                              onChange={(event) => updateStep(index, 'title', event.target.value)}
-                              placeholder={`步骤 ${index + 1}`}
+                    <div className="step-editor-header">
+                      <strong>分步骤编辑</strong>
+                      <button className="secondary-btn small" type="button" onClick={addStep}>
+                        新增步骤
+                      </button>
+                    </div>
+
+                    <div className="step-editor-list">
+                      {steps.map((step, index) => (
+                        <div key={`step-${index}`} className="step-editor-card">
+                          <div className="step-editor-top">
+                            <strong>步骤 {index + 1}</strong>
+                            <button className="ghost-link danger-link" type="button" onClick={() => removeStep(index)}>
+                              删除
+                            </button>
+                          </div>
+                          <div className="form-grid">
+                            <label>
+                              步骤名
+                              <input
+                                type="text"
+                                value={step.title}
+                                onChange={(event) => updateStep(index, 'title', event.target.value)}
+                                placeholder={`步骤 ${index + 1}`}
+                              />
+                            </label>
+                            <label>
+                              时长
+                              <input
+                                type="text"
+                                value={step.duration}
+                                onChange={(event) => updateStep(index, 'duration', event.target.value)}
+                                placeholder="如：5分钟"
+                              />
+                            </label>
+                          </div>
+                          <label className="step-editor-detail">
+                            说明
+                            <textarea
+                              rows={3}
+                              value={step.detail}
+                              onChange={(event) => updateStep(index, 'detail', event.target.value)}
+                              placeholder="写这一步具体怎么做"
                             />
                           </label>
-                          <label>
-                            时长
-                            <input
-                              type="text"
-                              value={step.duration}
-                              onChange={(event) => updateStep(index, 'duration', event.target.value)}
-                              placeholder="如：5分钟"
-                            />
-                          </label>
                         </div>
-                        <label className="step-editor-detail">
-                          说明
-                          <textarea
-                            rows={3}
-                            value={step.detail}
-                            onChange={(event) => updateStep(index, 'detail', event.target.value)}
-                            placeholder="写这一步具体怎么做"
-                          />
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p>{food.cookingMethod}</p>
-                  <ol className="cooking-step-list">
-                    {food.cookingSteps.map((step) => (
-                      <li key={`${step.title}-${step.duration}`}>
-                        <div className="step-title">
-                          {step.title} · <span>{step.duration}</span>
-                        </div>
-                        <p>{step.detail}</p>
-                      </li>
-                    ))}
-                  </ol>
-                </>
-              )}
-            </section>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p>{food.cookingMethod}</p>
+                    <ol className="cooking-step-list">
+                      {food.cookingSteps.map((step) => (
+                        <li key={`${step.title}-${step.duration}`}>
+                          <div className="step-title">
+                            {step.title} · <span>{step.duration}</span>
+                          </div>
+                          <p>{step.detail}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                )}
+              </section>
+            </div>
           </form>
         ) : null}
       </article>
