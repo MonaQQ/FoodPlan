@@ -433,6 +433,13 @@
   padding: 0.4rem 0.6rem;
 }
 
+.search-input {
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+}
+
 .input-column select,
 .inline-number-control input {
   border-radius: 10px;
@@ -553,6 +560,160 @@
 .record-actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.record-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.danger-soft-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summary-card {
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1rem;
+  background: linear-gradient(180deg, #fffaf5, #ffffff);
+}
+
+.summary-card h3,
+.record-day-header h3 {
+  margin: 0.2rem 0 0.4rem;
+}
+
+.summary-card p:last-child,
+.record-day-header p:last-child {
+  margin: 0;
+  color: #475569;
+}
+
+.calendar-single-panel {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 1rem;
+  background: linear-gradient(180deg, #fffdf7, #f8fbff);
+}
+
+.calendar-switcher {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  color: #475569;
+  flex-wrap: wrap;
+}
+
+.calendar-switcher-center {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.month-select {
+  min-width: 120px;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.calendar-weekdays {
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.calendar-day {
+  min-height: 92px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  padding: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.calendar-day.blank {
+  border: none;
+  background: transparent;
+  min-height: 92px;
+}
+
+.calendar-day.has-records {
+  background: linear-gradient(180deg, #fff7ed, #ffffff);
+  border-color: #fdba74;
+}
+
+.calendar-day.selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.calendar-day-number {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.calendar-day-count {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.calendar-day-preview {
+  font-size: 0.72rem;
+  color: #475569;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.record-day-panel {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 1rem;
+  background: #fffdf8;
+}
+
+.record-day-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.record-add-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(160px, 0.8fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.record-list-open {
+  max-height: none;
 }
 
 .empty-hint {
@@ -766,6 +927,17 @@
 
   .weekly-meta.multi {
     justify-content: flex-start;
+  }
+
+  .summary-grid,
+  .record-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .record-day-header,
+  .record-header-actions {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

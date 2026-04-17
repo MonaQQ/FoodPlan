@@ -51,8 +51,10 @@ export function CustomFoodManager({
   onSelectFood
 }: CustomFoodManagerProps) {
   const [form, setForm] = useState<CustomFoodFormState>(initialFormState);
+  const [savedFoodSearch, setSavedFoodSearch] = useState('');
 
   const savedCountText = useMemo(() => `已保存 ${foods.length} 道自定义菜`, [foods.length]);
+  const filteredFoods = useMemo(() => filterFoodsByName(foods, savedFoodSearch), [foods, savedFoodSearch]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -145,49 +147,32 @@ export function CustomFoodManager({
       <div className="custom-builder">
         <form className="input-column custom-food-form" onSubmit={handleSubmit}>
           <label>菜名</label>
-          <input
-            type="text"
-            placeholder="如：番茄蘑菇汤"
-            value={form.name}
-            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-          />
+          <input type="text" placeholder="如：番茄蘑菇汤" value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} />
 
           <div className="form-grid">
             <label>
               热量
-              <input
-                type="number"
-                min="0"
-                placeholder="可选"
-                value={form.calories}
-                onChange={(event) => setForm((prev) => ({ ...prev, calories: event.target.value }))}
-              />
+              <input type="number" min="0" placeholder="可选" value={form.calories} onChange={(event) => setForm((prev) => ({ ...prev, calories: event.target.value }))} />
             </label>
             <label>
               最佳时间
-              <input
-                type="text"
-                placeholder="如：晚餐"
-                value={form.bestTime}
-                onChange={(event) => setForm((prev) => ({ ...prev, bestTime: event.target.value }))}
-              />
+              <input type="text" placeholder="如：晚餐" value={form.bestTime} onChange={(event) => setForm((prev) => ({ ...prev, bestTime: event.target.value }))} />
             </label>
           </div>
 
           <div className="form-grid">
             <label>
-              素/荤
+              分类
               <select value={form.type} onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value as FoodNature }))}>
                 <option value="vegetarian">素食</option>
                 <option value="meat">荤食</option>
+                <option value="soup">汤品</option>
+                <option value="staple">主食</option>
               </select>
             </label>
             <label>
               红绿灯
-              <select
-                value={form.trafficLight}
-                onChange={(event) => setForm((prev) => ({ ...prev, trafficLight: event.target.value as TrafficLight }))}
-              >
+              <select value={form.trafficLight} onChange={(event) => setForm((prev) => ({ ...prev, trafficLight: event.target.value as TrafficLight }))}>
                 <option value="green">绿色，可常吃</option>
                 <option value="yellow">黄色，适量吃</option>
                 <option value="red">红色，偶尔吃</option>
@@ -196,28 +181,13 @@ export function CustomFoodManager({
           </div>
 
           <label>菜品描述</label>
-          <textarea
-            rows={3}
-            placeholder="可选，写一句这道菜的特点"
-            value={form.description}
-            onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
-          />
+          <textarea rows={3} placeholder="可选，写一句这道菜的特点" value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} />
 
           <label>所需食材</label>
-          <textarea
-            rows={4}
-            placeholder="每行一个，或用逗号分隔"
-            value={form.ingredients}
-            onChange={(event) => setForm((prev) => ({ ...prev, ingredients: event.target.value }))}
-          />
+          <textarea rows={4} placeholder="每行一个，或用逗号分隔" value={form.ingredients} onChange={(event) => setForm((prev) => ({ ...prev, ingredients: event.target.value }))} />
 
           <label>烹饪方式总说明</label>
-          <textarea
-            rows={4}
-            placeholder="先写一段整体说明，比如：先炒香番茄，再加入菌菇煮 10 分钟。"
-            value={form.cookingMethod}
-            onChange={(event) => setForm((prev) => ({ ...prev, cookingMethod: event.target.value }))}
-          />
+          <textarea rows={4} placeholder="先写一段整体说明，比如：先炒香番茄，再加入菌菇煮 10 分钟。" value={form.cookingMethod} onChange={(event) => setForm((prev) => ({ ...prev, cookingMethod: event.target.value }))} />
 
           <div className="step-editor-list">
             {form.cookingSteps.map((step, index) => (
@@ -231,31 +201,16 @@ export function CustomFoodManager({
                 <div className="form-grid">
                   <label>
                     步骤名
-                    <input
-                      type="text"
-                      value={step.title}
-                      onChange={(event) => updateStep(index, 'title', event.target.value)}
-                      placeholder={`步骤 ${index + 1}`}
-                    />
+                    <input type="text" value={step.title} onChange={(event) => updateStep(index, 'title', event.target.value)} placeholder={`步骤 ${index + 1}`} />
                   </label>
                   <label>
                     时长
-                    <input
-                      type="text"
-                      value={step.duration}
-                      onChange={(event) => updateStep(index, 'duration', event.target.value)}
-                      placeholder="如：5分钟"
-                    />
+                    <input type="text" value={step.duration} onChange={(event) => updateStep(index, 'duration', event.target.value)} placeholder="如：5分钟" />
                   </label>
                 </div>
                 <label className="step-editor-detail">
                   说明
-                  <textarea
-                    rows={3}
-                    value={step.detail}
-                    onChange={(event) => updateStep(index, 'detail', event.target.value)}
-                    placeholder="写这一步具体怎么做"
-                  />
+                  <textarea rows={3} value={step.detail} onChange={(event) => updateStep(index, 'detail', event.target.value)} placeholder="写这一步具体怎么做" />
                 </label>
               </div>
             ))}
@@ -268,12 +223,7 @@ export function CustomFoodManager({
           </div>
 
           <label>营养亮点</label>
-          <textarea
-            rows={3}
-            placeholder="可选，每行一个，或用逗号分隔"
-            value={form.nutrients}
-            onChange={(event) => setForm((prev) => ({ ...prev, nutrients: event.target.value }))}
-          />
+          <textarea rows={3} placeholder="可选，每行一个，或用逗号分隔" value={form.nutrients} onChange={(event) => setForm((prev) => ({ ...prev, nutrients: event.target.value }))} />
 
           <div className="season-picker">
             <span>适合时令</span>
@@ -305,11 +255,18 @@ export function CustomFoodManager({
             <strong>{savedCountText}</strong>
             <span>勾选状态只影响随心转盘，不会删除菜品。</span>
           </div>
+          <input
+            type="text"
+            className="search-input"
+            placeholder="搜索已保存的自定义菜"
+            value={savedFoodSearch}
+            onChange={(event) => setSavedFoodSearch(event.target.value)}
+          />
 
           <div className="option-list custom-saved-list">
-            {foods.length === 0 && <p className="empty-hint">还没有保存自定义菜，先录入一道吧。</p>}
+            {filteredFoods.length === 0 && <p className="empty-hint">{foods.length ? '没有找到匹配的自定义菜。' : '还没有保存自定义菜，先录入一道吧。'}</p>}
 
-            {foods.map((food) => (
+            {filteredFoods.map((food) => (
               <article key={food.id} className="saved-food-card">
                 <div className="saved-food-top">
                   <label className="option-row">
@@ -317,9 +274,7 @@ export function CustomFoodManager({
                       type="checkbox"
                       checked={selectedIds.includes(food.id)}
                       onChange={() =>
-                        onSelectedIdsChange(
-                          selectedIds.includes(food.id) ? selectedIds.filter((item) => item !== food.id) : [...selectedIds, food.id]
-                        )
+                        onSelectedIdsChange(selectedIds.includes(food.id) ? selectedIds.filter((item) => item !== food.id) : [...selectedIds, food.id])
                       }
                     />
                     <span>{food.name}</span>
@@ -348,9 +303,7 @@ export function CustomFoodManager({
                     onClick={() => {
                       if (window.confirm(`确认删除“${food.name}”吗？此操作不会恢复。`)) {
                         onDeleteFood(food.id);
-                        if (form.id === food.id) {
-                          resetForm();
-                        }
+                        if (form.id === food.id) resetForm();
                       }
                     }}
                   >
@@ -405,4 +358,10 @@ function createEmptyStep(index: number): CookingStep {
     duration: '',
     detail: ''
   };
+}
+
+function filterFoodsByName<T extends { name: string }>(foods: T[], keyword: string) {
+  const normalized = keyword.trim().toLowerCase();
+  if (!normalized) return foods;
+  return foods.filter((food) => food.name.toLowerCase().includes(normalized));
 }

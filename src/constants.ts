@@ -21,7 +21,9 @@ export const trafficLightLabels: Record<TrafficLight, string> = {
 
 export const typeLabels: Record<FoodNature, string> = {
   vegetarian: '素食',
-  meat: '荤食'
+  meat: '荤食',
+  soup: '汤品',
+  staple: '主食'
 };
 
 export const trafficColors: Record<TrafficLight, string> = {

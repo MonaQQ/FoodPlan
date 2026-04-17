@@ -30,6 +30,8 @@ export function CustomSpinner({
   const [isSpinning, setIsSpinning] = useState(false);
   const [rollingLabel, setRollingLabel] = useState('勾选候选菜品后即可开始转盘');
   const [lastResult, setLastResult] = useState<SpinnerOption | null>(null);
+  const [systemSearch, setSystemSearch] = useState('');
+  const [customSearch, setCustomSearch] = useState('');
   const rollingTimer = useRef<number>();
 
   useEffect(() => {
@@ -41,10 +43,9 @@ export function CustomSpinner({
   }, []);
 
   const foodMap = useMemo(() => new Map([...systemFoods, ...customFoods].map((food) => [food.id, food])), [customFoods, systemFoods]);
-  const favoriteSystemFoodIds = useMemo(
-    () => systemFoods.filter((food) => food.isFavorite).map((food) => food.id),
-    [systemFoods]
-  );
+  const favoriteSystemFoodIds = useMemo(() => systemFoods.filter((food) => food.isFavorite).map((food) => food.id), [systemFoods]);
+  const filteredSystemFoods = useMemo(() => filterFoodsByName(systemFoods, systemSearch), [systemFoods, systemSearch]);
+  const filteredCustomFoods = useMemo(() => filterFoodsByName(customFoods, customSearch), [customFoods, customSearch]);
 
   const systemPool = useMemo(
     () =>
@@ -134,11 +135,8 @@ export function CustomSpinner({
     const nextCustomIds = new Set(selectedCustomIds);
 
     randomPreview.forEach((item) => {
-      if (item.origin === 'user') {
-        nextCustomIds.add(item.id);
-      } else {
-        nextSystemIds.add(item.id);
-      }
+      if (item.origin === 'user') nextCustomIds.add(item.id);
+      else nextSystemIds.add(item.id);
     });
 
     onSelectedSystemIdsChange(Array.from(nextSystemIds));
@@ -158,6 +156,13 @@ export function CustomSpinner({
       <div className="custom-builder spinner-selector-grid">
         <div className="select-column">
           <label>系统菜品</label>
+          <input
+            type="text"
+            className="search-input"
+            placeholder="搜索系统菜品"
+            value={systemSearch}
+            onChange={(event) => setSystemSearch(event.target.value)}
+          />
           <div className="bulk-actions">
             <button className="secondary-btn small" type="button" onClick={() => onSelectedSystemIdsChange(systemFoods.map((food) => food.id))}>
               一键全选
@@ -167,7 +172,7 @@ export function CustomSpinner({
             </button>
           </div>
           <div className="option-list">
-            {systemFoods.map((food) => (
+            {filteredSystemFoods.map((food) => (
               <label key={food.id} className="option-row">
                 <input type="checkbox" checked={selectedSystemIds.includes(food.id)} onChange={() => toggleSystemFood(food.id)} />
                 <span>
@@ -180,11 +185,19 @@ export function CustomSpinner({
                 </span>
               </label>
             ))}
+            {!filteredSystemFoods.length && <p className="empty-hint">没有找到匹配的系统菜品。</p>}
           </div>
         </div>
 
         <div className="select-column">
           <label>自定义菜品</label>
+          <input
+            type="text"
+            className="search-input"
+            placeholder="搜索自定义菜品"
+            value={customSearch}
+            onChange={(event) => setCustomSearch(event.target.value)}
+          />
           <div className="bulk-actions">
             <button className="secondary-btn small" type="button" onClick={() => onSelectedCustomIdsChange(customFoods.map((food) => food.id))}>
               一键全选
@@ -192,10 +205,10 @@ export function CustomSpinner({
             <span className="candidate-hint">已保存 {customFoods.length} 道</span>
           </div>
           <div className="option-list">
-            {customFoods.length === 0 ? (
-              <p className="empty-hint">还没有保存自定义菜，请先去“自定义菜品”页签添加。</p>
+            {filteredCustomFoods.length === 0 ? (
+              <p className="empty-hint">{customFoods.length ? '没有找到匹配的自定义菜品。' : '还没有保存自定义菜，请先去“自定义菜品”页签添加。'}</p>
             ) : (
-              customFoods.map((food) => (
+              filteredCustomFoods.map((food) => (
                 <label key={food.id} className="option-row">
                   <input type="checkbox" checked={selectedCustomIds.includes(food.id)} onChange={() => toggleCustomFood(food.id)} />
                   <span>
@@ -261,13 +274,7 @@ export function CustomSpinner({
               key={option.id}
               className={`chip removable ${option.origin === 'user' ? 'custom-chip' : 'ghost-chip'}`}
               type="button"
-              onClick={() => {
-                if (option.origin === 'user') {
-                  toggleCustomFood(option.id);
-                } else {
-                  toggleSystemFood(option.id);
-                }
-              }}
+              onClick={() => (option.origin === 'user' ? toggleCustomFood(option.id) : toggleSystemFood(option.id))}
             >
               {option.label} ×
             </button>
@@ -300,4 +307,10 @@ export function CustomSpinner({
       )}
     </section>
   );
+}
+
+function filterFoodsByName<T extends { name: string }>(foods: T[], keyword: string) {
+  const normalized = keyword.trim().toLowerCase();
+  if (!normalized) return foods;
+  return foods.filter((food) => food.name.toLowerCase().includes(normalized));
 }

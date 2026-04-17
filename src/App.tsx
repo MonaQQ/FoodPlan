@@ -72,7 +72,10 @@ function App() {
     return day === 0 || day === 6 ? 'weekend' : 'weekday';
   }, [now]);
 
-  const systemFoods = useMemo(() => FOODS.map((food) => enrichFood(mergeFoodDraft(food, foodEdits[food.id]), favoriteIds)), [favoriteIds, foodEdits]);
+  const systemFoods = useMemo(
+    () => FOODS.map((food) => enrichFood(normalizeFoodType(mergeFoodDraft(food, foodEdits[food.id])), favoriteIds)),
+    [favoriteIds, foodEdits]
+  );
   const mergedCustomFoods = useMemo(
     () => customFoods.map((food) => enrichFood(mergeFoodDraft(food, foodEdits[food.id]), favoriteIds) as CustomFoodItem),
     [customFoods, favoriteIds, foodEdits]
@@ -130,6 +133,28 @@ function App() {
 
   const deleteRecord = (id: string) => {
     setRecords((prev) => prev.filter((record) => record.id !== id));
+  };
+
+  const clearRecords = () => {
+    setRecords([]);
+  };
+
+  const addRecordForDate = (foodId: string, dateText: string, source: SpinRecord['source']) => {
+    const food = foodMap.get(foodId);
+    if (!food) return;
+
+    const sameDayCount = records.filter((record) => record.timestamp.startsWith(dateText)).length;
+    const timestamp = createTimestampForDate(dateText, sameDayCount);
+
+    setRecords((prev) => [
+      ...prev,
+      {
+        id: randomId(),
+        option: toRecordOption(food),
+        source,
+        timestamp
+      }
+    ]);
   };
 
   const showFoodDetail = (id: string) => {
@@ -326,7 +351,15 @@ function App() {
           {activeTab === 'weekly' && <WeeklyPlanner foods={allFoods} season={currentSeason} onSelectFood={showFoodDetail} />}
 
           {activeTab === 'records' && (
-            <SpinRecordList records={records} onDelete={deleteRecord} onSelectFood={showFoodDetail} hasFood={(id) => foodMap.has(id)} />
+            <SpinRecordList
+              records={records}
+              foods={allFoods}
+              onDelete={deleteRecord}
+              onClearAll={clearRecords}
+              onAddRecord={addRecordForDate}
+              onSelectFood={showFoodDetail}
+              hasFood={(id) => foodMap.has(id)}
+            />
           )}
         </section>
       </main>
@@ -404,6 +437,35 @@ function enrichFood(food: FoodItem, favoriteIds: string[]): FoodItem {
   };
 }
 
+function normalizeFoodType(food: FoodItem): FoodItem {
+  const soupIds = new Set([
+    'congee',
+    'lotus-rib-soup',
+    'mixed-grain-congee',
+    'spinach-tofu-soup',
+    'pumpkin-coconut-soup',
+    'winter-melon-meatball-soup',
+    'seaweed-egg-soup',
+    'tomato-beef-soup',
+    'miso-tofu-soup',
+    'tofu-pot',
+    'corn-ribs',
+    'lamb-pot',
+    'sour-cabbage'
+  ]);
+  const stapleIds = new Set(['beef-noodle', 'salmon-bowl', 'mushroom-quinoa', 'sesame-noodle', 'soba-bowl']);
+
+  if (soupIds.has(food.id)) {
+    return { ...food, type: 'soup' };
+  }
+
+  if (stapleIds.has(food.id)) {
+    return { ...food, type: 'staple' };
+  }
+
+  return food;
+}
+
 function toRecordOption(food: FoodItem): SpinnerOption {
   return {
     id: food.id,
@@ -416,6 +478,12 @@ function toRecordOption(food: FoodItem): SpinnerOption {
       isFavorite: food.isFavorite
     }
   };
+}
+
+function createTimestampForDate(dateText: string, index: number) {
+  const [year, month, day] = dateText.split('-').map(Number);
+  const date = new Date(year, (month || 1) - 1, day || 1, 12, Math.min(index, 47), 0, 0);
+  return date.toISOString();
 }
 
 export default App;

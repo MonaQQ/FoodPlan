@@ -40,7 +40,7 @@ export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood, onTo
           <p className="eyebrow">饮食分类</p>
           <h2>常见食材热量与类别</h2>
         </div>
-        <p className="panel-description">通过时令、日期、红绿灯与素荤分类快速定位，支持直接给菜品添加心动标记。</p>
+        <p className="panel-description">通过时令、日期、红绿灯和分类快速定位，支持直接给菜品添加心动标记。</p>
       </header>
 
       <div className="filters-row">
@@ -63,7 +63,7 @@ export function FoodCatalog({ foods, filters, onFilterChange, onSelectFood, onTo
           onChange={(value) => onFilterChange('traffic', value as FilterState['traffic'])}
         />
         <FilterSelect
-          label="素/荤"
+          label="分类"
           value={filters.type}
           options={withAllOption(typeLabels)}
           onChange={(value) => onFilterChange('type', value as FilterState['type'])}

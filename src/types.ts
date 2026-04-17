@@ -2,7 +2,7 @@ export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 
 export type TrafficLight = 'green' | 'yellow' | 'red';
 
-export type FoodNature = 'vegetarian' | 'meat';
+export type FoodNature = 'vegetarian' | 'meat' | 'soup' | 'staple';
 
 export type DateTag = 'weekday' | 'weekend' | 'festival';
 
