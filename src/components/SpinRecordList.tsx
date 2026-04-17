@@ -122,152 +122,146 @@ export function SpinRecordList({ records, foods, onDelete, onClearAll, onAddReco
         </div>
       </header>
 
-      {records.length === 0 ? (
-        <p className="empty-hint">暂无记录，先去转盘试试吧！</p>
-      ) : (
-        <>
-          <div className="summary-grid">
-            <article className="summary-card">
-              <p className="eyebrow">自然周点评</p>
-              <h3>{formatWeekRange(selectedDate)}</h3>
-              <p>{buildPeriodSummary(weekSummaryRecords, '本周')}</p>
-            </article>
-            <article className="summary-card">
-              <p className="eyebrow">自然月点评</p>
-              <h3>{currentMonthPrefix}</h3>
-              <p>{buildPeriodSummary(monthSummaryRecords, '本月')}</p>
-            </article>
+      <div className="summary-grid">
+        <article className="summary-card">
+          <p className="eyebrow">自然周点评</p>
+          <h3>{formatWeekRange(selectedDate)}</h3>
+          <p>{buildPeriodSummary(weekSummaryRecords, '本周')}</p>
+        </article>
+        <article className="summary-card">
+          <p className="eyebrow">自然月点评</p>
+          <h3>{currentMonthPrefix}</h3>
+          <p>{buildPeriodSummary(monthSummaryRecords, '本月')}</p>
+        </article>
+      </div>
+
+      <section className="calendar-single-panel">
+        <div className="calendar-switcher">
+          <button className="secondary-btn small" type="button" onClick={() => shiftMonth(-1)}>
+            上个月
+          </button>
+          <div className="calendar-switcher-center">
+            <strong>
+              {selectedYear} 年 {monthLabels[selectedMonth - 1]}
+            </strong>
+            <label className="filter-select month-select">
+              <span>选择月份</span>
+              <select value={selectedMonth} onChange={(event) => setSelectedMonth(Number(event.target.value))}>
+                {monthLabels.map((label, index) => (
+                  <option key={label} value={index + 1}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
+          <button className="secondary-btn small" type="button" onClick={() => shiftMonth(1)}>
+            下个月
+          </button>
+        </div>
 
-          <section className="calendar-single-panel">
-            <div className="calendar-switcher">
-              <button className="secondary-btn small" type="button" onClick={() => shiftMonth(-1)}>
-                上个月
+        <div className="calendar-weekdays">
+          {['一', '二', '三', '四', '五', '六', '日'].map((weekday) => (
+            <span key={`${calendarMonth.month}-${weekday}`}>{weekday}</span>
+          ))}
+        </div>
+        <div className="calendar-grid">
+          {calendarMonth.days.map((day, index) =>
+            day ? (
+              <button
+                key={`${calendarMonth.month}-${day.date}`}
+                type="button"
+                className={`calendar-day ${selectedDate === day.date ? 'selected' : ''} ${day.records.length ? 'has-records' : ''}`}
+                onClick={() => setSelectedDate(day.date)}
+              >
+                <span className="calendar-day-number">{Number(day.date.slice(8, 10))}</span>
+                <span className="calendar-day-count">{day.records.length ? `${day.records.length}条` : ''}</span>
+                <span className="calendar-day-preview">{day.records.slice(0, 2).map((record) => record.option.label).join(' · ')}</span>
               </button>
-              <div className="calendar-switcher-center">
-                <strong>
-                  {selectedYear} 年 {monthLabels[selectedMonth - 1]}
-                </strong>
-                <label className="filter-select month-select">
-                  <span>选择月份</span>
-                  <select value={selectedMonth} onChange={(event) => setSelectedMonth(Number(event.target.value))}>
-                    {monthLabels.map((label, index) => (
-                      <option key={label} value={index + 1}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <button className="secondary-btn small" type="button" onClick={() => shiftMonth(1)}>
-                下个月
-              </button>
-            </div>
+            ) : (
+              <div key={`${calendarMonth.month}-blank-${index}`} className="calendar-day blank" />
+            )
+          )}
+        </div>
+      </section>
 
-            <div className="calendar-weekdays">
-              {['一', '二', '三', '四', '五', '六', '日'].map((weekday) => (
-                <span key={`${calendarMonth.month}-${weekday}`}>{weekday}</span>
+      <section className="record-day-panel">
+        <div className="record-day-header">
+          <div>
+            <p className="eyebrow">按天记录</p>
+            <h3>{selectedDate}</h3>
+            <p>{buildDailySummary(selectedDateRecords)}</p>
+          </div>
+          <span className="record-group-count">{selectedDateRecords.length} 条记录</span>
+        </div>
+
+        <div className="record-add-form">
+          <div className="filter-select">
+            <span>搜索菜品</span>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="按菜名模糊搜索"
+              value={pendingFoodSearch}
+              onChange={(event) => setPendingFoodSearch(event.target.value)}
+            />
+          </div>
+          <label className="filter-select">
+            <span>补记菜品</span>
+            <select value={pendingFoodId} onChange={(event) => setPendingFoodId(event.target.value)}>
+              <option value="">请选择菜品</option>
+              {filteredFoods.map((food) => (
+                <option key={food.id} value={food.id}>
+                  {food.name}
+                </option>
               ))}
-            </div>
-            <div className="calendar-grid">
-              {calendarMonth.days.map((day, index) =>
-                day ? (
-                  <button
-                    key={`${calendarMonth.month}-${day.date}`}
-                    type="button"
-                    className={`calendar-day ${selectedDate === day.date ? 'selected' : ''} ${day.records.length ? 'has-records' : ''}`}
-                    onClick={() => setSelectedDate(day.date)}
-                  >
-                    <span className="calendar-day-number">{Number(day.date.slice(8, 10))}</span>
-                    <span className="calendar-day-count">{day.records.length ? `${day.records.length}条` : ''}</span>
-                    <span className="calendar-day-preview">{day.records.slice(0, 2).map((record) => record.option.label).join(' · ')}</span>
+            </select>
+          </label>
+          <label className="filter-select">
+            <span>记录来源</span>
+            <select value={pendingSource} onChange={(event) => setPendingSource(event.target.value as SpinRecord['source'])}>
+              <option value="custom">自定义转盘</option>
+              <option value="daily">每日推荐</option>
+            </select>
+          </label>
+          <button className="primary-btn" type="button" onClick={handleAddRecord} disabled={!pendingFoodId}>
+            添加其他菜品
+          </button>
+        </div>
+
+        <ul className="record-list record-list-open">
+          {selectedDateRecords.length === 0 && <p className="empty-hint">这一天还没有记录，可以直接补记菜品。</p>}
+          {selectedDateRecords.map((record) => (
+            <li key={record.id} className="record-item">
+              <div className="record-main">
+                <strong>{record.option.label}</strong>
+                {record.option.meta?.isFavorite && <span className="favorite-badge small">心动</span>}
+                {record.option.calories ? <span className="record-calorie">{record.option.calories} kcal</span> : null}
+                {record.option.meta?.trafficLight && (
+                  <span className="mini-tag" style={{ color: trafficColors[record.option.meta.trafficLight] }}>
+                    {trafficLightLabels[record.option.meta.trafficLight]}
+                  </span>
+                )}
+              </div>
+              <div className="record-sub">
+                <span>{sourceLabels[record.source]}</span>
+                {record.option.meta?.type && <span>{typeLabels[record.option.meta.type]}</span>}
+                <span>{formatDateTime(new Date(record.timestamp))}</span>
+              </div>
+              <div className="record-actions">
+                {hasFood(record.option.id) && (
+                  <button type="button" onClick={() => onSelectFood(record.option.id)} aria-label="查看详情">
+                    查看
                   </button>
-                ) : (
-                  <div key={`${calendarMonth.month}-blank-${index}`} className="calendar-day blank" />
-                )
-              )}
-            </div>
-          </section>
-
-          <section className="record-day-panel">
-            <div className="record-day-header">
-              <div>
-                <p className="eyebrow">按天记录</p>
-                <h3>{selectedDate}</h3>
-                <p>{buildDailySummary(selectedDateRecords)}</p>
+                )}
+                <button type="button" onClick={() => onDelete(record.id)} aria-label="删除记录">
+                  删除
+                </button>
               </div>
-              <span className="record-group-count">{selectedDateRecords.length} 条记录</span>
-            </div>
-
-            <div className="record-add-form">
-              <div className="filter-select">
-                <span>搜索菜品</span>
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="按菜名模糊搜索"
-                  value={pendingFoodSearch}
-                  onChange={(event) => setPendingFoodSearch(event.target.value)}
-                />
-              </div>
-              <label className="filter-select">
-                <span>补记菜品</span>
-                <select value={pendingFoodId} onChange={(event) => setPendingFoodId(event.target.value)}>
-                  <option value="">请选择菜品</option>
-                  {filteredFoods.map((food) => (
-                    <option key={food.id} value={food.id}>
-                      {food.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="filter-select">
-                <span>记录来源</span>
-                <select value={pendingSource} onChange={(event) => setPendingSource(event.target.value as SpinRecord['source'])}>
-                  <option value="custom">自定义转盘</option>
-                  <option value="daily">每日推荐</option>
-                </select>
-              </label>
-              <button className="primary-btn" type="button" onClick={handleAddRecord} disabled={!pendingFoodId}>
-                添加其他菜品
-              </button>
-            </div>
-
-            <ul className="record-list record-list-open">
-              {selectedDateRecords.length === 0 && <p className="empty-hint">这一天还没有记录，可以直接补记菜品。</p>}
-              {selectedDateRecords.map((record) => (
-                <li key={record.id} className="record-item">
-                  <div className="record-main">
-                    <strong>{record.option.label}</strong>
-                    {record.option.meta?.isFavorite && <span className="favorite-badge small">心动</span>}
-                    {record.option.calories ? <span className="record-calorie">{record.option.calories} kcal</span> : null}
-                    {record.option.meta?.trafficLight && (
-                      <span className="mini-tag" style={{ color: trafficColors[record.option.meta.trafficLight] }}>
-                        {trafficLightLabels[record.option.meta.trafficLight]}
-                      </span>
-                    )}
-                  </div>
-                  <div className="record-sub">
-                    <span>{sourceLabels[record.source]}</span>
-                    {record.option.meta?.type && <span>{typeLabels[record.option.meta.type]}</span>}
-                    <span>{formatDateTime(new Date(record.timestamp))}</span>
-                  </div>
-                  <div className="record-actions">
-                    {hasFood(record.option.id) && (
-                      <button type="button" onClick={() => onSelectFood(record.option.id)} aria-label="查看详情">
-                        查看
-                      </button>
-                    )}
-                    <button type="button" onClick={() => onDelete(record.id)} aria-label="删除记录">
-                      删除
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </>
-      )}
+            </li>
+          ))}
+        </ul>
+      </section>
     </section>
   );
 }
