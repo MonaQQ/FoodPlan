@@ -1,10 +1,30 @@
+# FoodPlan
 
-What should we eat today？
+一个本地可用的吃饭选择应用，支持每日随机、收藏、记录和计划。
 
-在命令行进入项目目录：cd "C:\Users\Administrator\Documents\New project 2"
+## 开发运行
 
-启动开发服务器：npm run dev
+在项目目录执行：
 
-终端会显示本地访问地址，通常是 http://localhost:5173/（也可能包含网络地址）。复制地址到浏览器即可打开应用。
+```powershell
+npm install
+npm run dev
+```
 
-若要停止运行，回到终端按 Ctrl+C。
+浏览器打开终端提示的地址，默认通常是 `http://localhost:5173/`。
+
+## 生成可分发 Windows 包
+
+在项目目录执行：
+
+```powershell
+.\package.ps1
+```
+
+打包完成后，成品目录在：
+
+```text
+release\FoodPlan-Windows
+```
+
+把整个 `FoodPlan-Windows` 文件夹发给别人即可。对方双击 `FoodPlan.exe` 就会自动启动并在默认浏览器中打开应用，不需要安装 Node.js。
