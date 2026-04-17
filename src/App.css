@@ -884,6 +884,12 @@
   margin-top: 0.75rem;
 }
 
+.footer-author {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 1024px) {
   .tab-shell {
     grid-template-columns: 1fr;

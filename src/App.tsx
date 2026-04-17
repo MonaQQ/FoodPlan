@@ -367,6 +367,7 @@ function App() {
       <footer className="footer">
         <p>你可以先筛食材，再切换到心动菜单、每日推荐、随心转盘、自定义菜品或一周推荐继续操作。</p>
         <p className="footer-note">数据仅作示例参考，请结合个人饮食需求灵活调整。</p>
+        <p className="footer-author">作者：树荫下听风</p>
       </footer>
 
       <FoodDetailModal food={detailFood} onClose={() => setDetailFoodId(null)} onSave={saveFoodDetail} onToggleFavorite={toggleFavorite} />
