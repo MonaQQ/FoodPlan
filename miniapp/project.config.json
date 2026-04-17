@@ -1,0 +1,35 @@
+{
+  "appid": "wxa010f8911ce107f8",
+  "projectname": "FoodPlanMiniapp",
+  "compileType": "game",
+  "miniprogramRoot": "",
+  "srcMiniprogramRoot": "",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "minified": true,
+    "postcss": true,
+    "coverView": true,
+    "showShadowRootInWxmlPanel": true,
+    "packNpmManually": false,
+    "compileHotReLoad": true,
+    "uploadWithSourceMap": true,
+    "useCompilerPlugins": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "simulatorPluginLibVersion": {},
+  "condition": {},
+  "libVersion": "3.15.2",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}
