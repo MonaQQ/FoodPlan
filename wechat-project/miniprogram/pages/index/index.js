@@ -84,6 +84,8 @@ function getDefaultDetailEditForm() {
   return {
     ingredientsText: '',
     cookingMethod: '',
+    seasonsText: '',
+    dateTagsText: '',
     customSteps: [getDefaultCustomStep()]
   };
 }
@@ -144,6 +146,8 @@ Page({
     detailVisible: false,
     detailEditing: false,
     detailEditForm: getDefaultDetailEditForm(),
+    detailSeasonValues: [],
+    detailDateTagValues: [],
     customFoods: [],
     ...getCustomFormState(),
     recordYear: getTodayParts().year,
@@ -158,6 +162,7 @@ Page({
 
   onLoad() {
     this.refreshState();
+    this.autoPickForHomeSubTab(this.data.homeSubTab);
   },
 
   refreshState() {
@@ -243,6 +248,8 @@ Page({
     return {
       ...food,
       ingredients: Array.isArray(draft.ingredients) && draft.ingredients.length ? draft.ingredients : food.ingredients,
+      seasons: Array.isArray(draft.seasons) && draft.seasons.length ? draft.seasons : food.seasons,
+      dateTags: Array.isArray(draft.dateTags) && draft.dateTags.length ? draft.dateTags : food.dateTags,
       cookingMethod: draft.cookingMethod || food.cookingMethod,
       cookingSteps: Array.isArray(draft.cookingSteps) && draft.cookingSteps.length ? draft.cookingSteps : food.cookingSteps
     };
@@ -420,13 +427,19 @@ Page({
   },
 
   handleTabChange(event) {
-    this.setData({ activeTab: event.currentTarget.dataset.tab }, () => this.refreshState());
+    const tab = event.currentTarget.dataset.tab;
+    this.setData({ activeTab: tab }, () => {
+      this.refreshState();
+      if (tab === 'home') {
+        this.autoPickForHomeSubTab(this.data.homeSubTab);
+      }
+    });
   },
 
   handleHomeSubTabChange(event) {
     const tab = event.currentTarget.dataset.tab;
     if (!tab) return;
-    this.setData({ homeSubTab: tab });
+    this.setData({ homeSubTab: tab }, () => this.autoPickForHomeSubTab(tab));
   },
 
   handleFilterChange(event) {
@@ -436,7 +449,20 @@ Page({
   },
 
   handleSpinnerModeChange(event) {
-    this.setData({ spinnerModeIndex: Number(event.detail.value) });
+    this.setData({ spinnerModeIndex: Number(event.detail.value) }, () => {
+      if (this.data.activeTab === 'home' && this.data.homeSubTab === 'spin') {
+        this.autoPickForHomeSubTab('spin');
+      }
+    });
+  },
+
+  autoPickForHomeSubTab(tab) {
+    if (tab === 'daily') {
+      this.makeTodayPick({ record: false, toast: false });
+    }
+    if (tab === 'spin') {
+      this.spinRandom({ record: false, toast: false });
+    }
   },
 
   handleSearchInput(event) {
@@ -495,7 +521,8 @@ Page({
     );
   },
 
-  makeTodayPick() {
+  makeTodayPick(options = {}) {
+    const { record = true, toast = true } = options;
     const allFoods = this.buildAllFoods(
       getStorage(STORAGE_KEYS.favoriteIds, []),
       getStorage(STORAGE_KEYS.customFoods, []),
@@ -509,16 +536,23 @@ Page({
     const picked = pickRandom(pool.length ? pool : allFoods);
 
     if (!picked) {
-      wx.showToast({ title: '暂无可推荐菜品', icon: 'none' });
+      if (toast) {
+        wx.showToast({ title: '????', icon: 'none' });
+      }
       return;
     }
 
-    this.pushRecord(picked, 'daily');
+    if (record) {
+      this.pushRecord(picked, 'daily');
+    }
     this.setData({ todayPick: picked });
-    wx.showToast({ title: `今日推荐：${picked.name}`, icon: 'none' });
+    if (toast) {
+      wx.showToast({ title: `???? ${picked.name}`, icon: 'none' });
+    }
   },
 
-  spinRandom() {
+  spinRandom(options = {}) {
+    const { record = true, toast = true } = options;
     const favoriteIds = getStorage(STORAGE_KEYS.favoriteIds, []);
     const customFoods = getStorage(STORAGE_KEYS.customFoods, []);
     const allFoods = this.buildAllFoods(favoriteIds, customFoods, getStorage(STORAGE_KEYS.foodEdits, {}));
@@ -537,13 +571,19 @@ Page({
 
     const picked = pickRandom(pool);
     if (!picked) {
-      wx.showToast({ title: '当前模式下没有可抽取菜品', icon: 'none' });
+      if (toast) {
+        wx.showToast({ title: '???????', icon: 'none' });
+      }
       return;
     }
 
-    this.pushRecord(picked, 'custom');
+    if (record) {
+      this.pushRecord(picked, 'custom');
+    }
     this.setData({ randomPick: picked });
-    wx.showToast({ title: `抽中了：${picked.name}`, icon: 'none' });
+    if (toast) {
+      wx.showToast({ title: `?? ${picked.name}`, icon: 'none' });
+    }
   },
 
   pushRecord(food, source, dateText) {
@@ -584,7 +624,9 @@ Page({
       detailFood: this.decorateDetailFood(food),
       detailVisible: true,
       detailEditing: false,
-      detailEditForm: this.getDetailEditForm(food)
+      detailEditForm: this.getDetailEditForm(food),
+      detailSeasonValues: food.seasons || [],
+      detailDateTagValues: food.dateTags || []
     });
   },
 
@@ -601,6 +643,8 @@ Page({
     return {
       ingredientsText: (food.ingredients || []).join('\n'),
       cookingMethod: food.cookingMethod || '',
+      seasonsText: (food.seasons || []).join(','),
+      dateTagsText: (food.dateTags || []).join(','),
       customSteps: (food.cookingSteps || []).map((step) => ({
         detail: step.detail || ''
       }))
@@ -612,7 +656,9 @@ Page({
       detailFood: null,
       detailVisible: false,
       detailEditing: false,
-      detailEditForm: getDefaultDetailEditForm()
+      detailEditForm: getDefaultDetailEditForm(),
+      detailSeasonValues: [],
+      detailDateTagValues: []
     });
   },
 
@@ -622,7 +668,9 @@ Page({
 
     this.setData({
       detailEditing: !this.data.detailEditing,
-      detailEditForm: this.getDetailEditForm(food)
+      detailEditForm: this.getDetailEditForm(food),
+      detailSeasonValues: food.seasons || [],
+      detailDateTagValues: food.dateTags || []
     });
   },
 
@@ -630,6 +678,21 @@ Page({
     const field = event.currentTarget.dataset.field;
     this.setData({
       [`detailEditForm.${field}`]: event.detail.value
+    });
+  },
+
+  toggleDetailMultiValue(event) {
+    const field = event.currentTarget.dataset.field;
+    const value = event.currentTarget.dataset.value;
+    if (!field || !value) return;
+    const currentValues = splitText(this.data.detailEditForm[field] || '', []);
+    const nextValues = currentValues.includes(value)
+      ? currentValues.filter((item) => item !== value)
+      : [...currentValues, value];
+    const valuesKey = field === 'seasonsText' ? 'detailSeasonValues' : 'detailDateTagValues';
+    this.setData({
+      [`detailEditForm.${field}`]: nextValues.join(','),
+      [valuesKey]: nextValues
     });
   },
 
@@ -669,13 +732,17 @@ Page({
 
     const foodEdits = getStorage(STORAGE_KEYS.foodEdits, {});
     const ingredients = splitText(this.data.detailEditForm.ingredientsText, food.ingredients || []);
-    const cookingMethod = (this.data.detailEditForm.cookingMethod || '').trim() || food.cookingMethod || '按个人习惯烹饪';
+    const seasons = this.normalizeEnumList(this.data.detailEditForm.seasonsText, ['spring', 'summer', 'autumn', 'winter'], food.seasons || ['spring']);
+    const dateTags = this.normalizeEnumList(this.data.detailEditForm.dateTagsText, ['weekday', 'weekend', 'festival'], food.dateTags || ['weekday']);
+    const cookingMethod = (this.data.detailEditForm.cookingMethod || '').trim() || food.cookingMethod || '???????';
     const cookingSteps = this.normalizeCustomSteps(this.data.detailEditForm.customSteps, cookingMethod);
 
     setStorage(STORAGE_KEYS.foodEdits, {
       ...foodEdits,
       [food.id]: {
         ingredients,
+        seasons,
+        dateTags,
         cookingMethod,
         cookingSteps
       }
@@ -687,6 +754,8 @@ Page({
           ? {
               ...item,
               ingredients,
+              seasons,
+              dateTags,
               cookingMethod,
               cookingSteps
             }
@@ -695,7 +764,7 @@ Page({
       setStorage(STORAGE_KEYS.customFoods, customFoods);
     }
 
-    wx.showToast({ title: '已保存菜品修改', icon: 'none' });
+    wx.showToast({ title: '???????', icon: 'none' });
     this.refreshState();
     this.openFoodDetail({ currentTarget: { dataset: { id: food.id } } });
   },

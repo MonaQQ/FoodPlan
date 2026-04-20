@@ -78,11 +78,30 @@
           <view class="section-eyebrow">心动菜品</view>
           <view class="section-title">收藏夹</view>
           <view wx:if="{{favoriteFoods.length === 0}}" class="empty-text">还没有收藏菜品，可以去菜谱页点亮心动。</view>
-          <view wx:else class="chip-list">
+          <view wx:else class="food-list food-grid-list">
             <block wx:for="{{favoriteFoods}}" wx:key="id">
-              <view class="food-chip" data-id="{{item.id}}" bindtap="previewFavorite">
-                <view class="food-chip-title">{{item.name}}</view>
-                <view class="food-chip-meta">{{item.bestTime}}</view>
+              <view class="food-card premium-card" data-id="{{item.id}}" bindtap="previewFavorite">
+                <view class="food-card-header">
+                  <view class="food-card-title-row">
+                    <view class="food-name">{{item.name}}</view>
+                  </view>
+                  <view class="food-card-meta-row">
+                    <button class="favorite-icon-btn {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '♥' : '♡'}}</button>
+                    <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
+                  </view>
+                </view>
+                <view class="food-description">{{item.description}}</view>
+                <view class="food-badges">
+                  <text class="badge badge-type">{{item.typeLabel}}</text>
+                  <text class="badge badge-traffic">{{item.trafficLabel}}</text>
+                  <text class="badge badge-season">{{item.seasonText}}</text>
+                  <text class="badge badge-date">{{item.dateTagText}}</text>
+                </view>
+                <view class="nutrients-row">
+                  <block wx:for="{{item.nutrients}}" wx:key="*this">
+                    <text class="nutrient-chip">{{item}}</text>
+                  </block>
+                </view>
               </view>
             </block>
           </view>
@@ -451,6 +470,23 @@
         <view class="detail-label">做法</view>
         <view wx:if="{{!detailEditing}}">{{detailFood.cookingMethod}}</view>
         <textarea wx:if="{{detailEditing}}" class="text-area detail-edit-area" value="{{detailEditForm.cookingMethod}}" data-field="cookingMethod" bindinput="handleDetailEditInput" placeholder="写一段整体烹饪说明"></textarea>
+      </view>
+      <view class="detail-block" wx:if="{{detailEditing}}">
+        <view class="detail-label">时令与场景</view>
+        <view class="choice-group">
+          <block wx:for="{{customSeasonOptions}}" wx:key="value">
+            <button class="choice-pill {{detailSeasonValues.indexOf(item.value) !== -1 ? 'active' : ''}}" data-field="seasonsText" data-value="{{item.value}}" bindtap="toggleDetailMultiValue" plain="{{false}}">
+              {{item.label}}
+            </button>
+          </block>
+        </view>
+        <view class="choice-group compact">
+          <block wx:for="{{customDateTagOptions}}" wx:key="value">
+            <button class="choice-pill {{detailDateTagValues.indexOf(item.value) !== -1 ? 'active' : ''}}" data-field="dateTagsText" data-value="{{item.value}}" bindtap="toggleDetailMultiValue" plain="{{false}}">
+              {{item.label}}
+            </button>
+          </block>
+        </view>
       </view>
       <view class="detail-block">
         <view class="detail-label">步骤</view>
