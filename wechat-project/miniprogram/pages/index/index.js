@@ -29,6 +29,17 @@ const EMPTY_WEEKLY_PLAN = {
   days: []
 };
 
+const CUSTOM_TRAFFIC_OPTIONS = TRAFFIC_OPTIONS.filter((item) => item.value !== 'all');
+const CUSTOM_TYPE_OPTIONS = TYPE_OPTIONS.filter((item) => item.value !== 'all');
+const CUSTOM_SEASON_OPTIONS = SEASON_OPTIONS.filter((item) => item.value !== 'all');
+const CUSTOM_DATE_TAG_OPTIONS = DATE_TAG_OPTIONS.filter((item) => item.value !== 'all');
+
+function getDefaultCustomStep(index = 1) {
+  return {
+    detail: ''
+  };
+}
+
 function getDefaultCustomForm() {
   return {
     id: '',
@@ -43,7 +54,29 @@ function getDefaultCustomForm() {
     ingredientsText: '',
     bestTime: '',
     cookingMethod: '',
-    cookingStepsText: ''
+    customSteps: [getDefaultCustomStep()]
+  };
+}
+
+function getCustomFormState(form = getDefaultCustomForm()) {
+  const customSteps =
+    Array.isArray(form.customSteps) && form.customSteps.length
+      ? form.customSteps.map((step, index) => ({
+          detail: step.detail || ''
+        }))
+      : buildStepsFromText(form.cookingStepsText || '').map((step, index) => ({
+          detail: step.detail || ''
+        }));
+  return {
+    customForm: {
+      ...getDefaultCustomForm(),
+      ...form,
+      customSteps
+    },
+    customSeasonValues: splitText(form.seasonsText, []),
+    customDateTagValues: splitText(form.dateTagsText, []),
+    customTypeLabel: TYPE_LABELS[form.type] || form.type,
+    customTrafficLabel: TRAFFIC_LABELS[form.trafficLight] || form.trafficLight
   };
 }
 
@@ -51,7 +84,7 @@ function getDefaultDetailEditForm() {
   return {
     ingredientsText: '',
     cookingMethod: '',
-    cookingStepsText: ''
+    customSteps: [getDefaultCustomStep()]
   };
 }
 
@@ -67,6 +100,7 @@ function getTodayParts() {
 Page({
   data: {
     activeTab: 'home',
+    homeSubTab: 'spin',
     tabOptions: TAB_OPTIONS,
     seasonOptions: SEASON_OPTIONS,
     dateTagOptions: DATE_TAG_OPTIONS,
@@ -80,6 +114,12 @@ Page({
     spinnerModeIndex: 0,
     searchQuery: '',
     customSearchQuery: '',
+    recordSearchQuery: '',
+    recordFoodIndex: 0,
+    customTrafficOptions: CUSTOM_TRAFFIC_OPTIONS,
+    customTypeOptions: CUSTOM_TYPE_OPTIONS,
+    customSeasonOptions: CUSTOM_SEASON_OPTIONS,
+    customDateTagOptions: CUSTOM_DATE_TAG_OPTIONS,
     currentSeasonLabel: '',
     currentDateTagLabel: '',
     todayText: '',
@@ -93,6 +133,7 @@ Page({
     ],
     catalogFoods: [],
     filteredCustomFoods: [],
+    filteredRecordFoods: [],
     favoriteFoods: [],
     records: [],
     todayPick: null,
@@ -104,7 +145,7 @@ Page({
     detailEditing: false,
     detailEditForm: getDefaultDetailEditForm(),
     customFoods: [],
-    customForm: getDefaultCustomForm(),
+    ...getCustomFormState(),
     recordYear: getTodayParts().year,
     recordMonth: getTodayParts().month,
     selectedRecordDate: getTodayParts().todayText,
@@ -145,12 +186,18 @@ Page({
         const merged = this.mergeFoodDraft(food, foodEdits[food.id]);
         return {
           ...merged,
-          isFavorite: favoriteIds.includes(food.id)
+          isFavorite: favoriteIds.includes(food.id),
+          typeLabel: TYPE_LABELS[merged.type] || merged.type,
+          trafficLabel: TRAFFIC_LABELS[merged.trafficLight] || merged.trafficLight,
+          seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / '),
+          dateTagText: merged.dateTags.map((item) => DATE_TAG_LABELS[item] || item).join(' / ')
         };
       })
     );
     const weeklyPlan = this.ensureWeeklyPlan(allFoods, currentSeason, weeklyDailyCount, storedPlan);
-    const recordState = this.buildRecordState(records);
+    const recordState = this.buildRecordState(allFoods, records);
+    const filteredRecordFoods = this.applyRecordSearch(allFoods);
+    const recordFoodIndex = Math.min(this.data.recordFoodIndex || 0, Math.max(filteredRecordFoods.length - 1, 0));
 
     this.setData({
       todayText: formatDate(now),
@@ -161,6 +208,7 @@ Page({
       recordCount: records.length,
       catalogFoods,
       filteredCustomFoods,
+      filteredRecordFoods,
       favoriteFoods,
       records,
       customFoods,
@@ -170,6 +218,7 @@ Page({
       recordCalendarDays: recordState.recordCalendarDays,
       selectedRecordDate: recordState.selectedRecordDate,
       selectedDateRecords: recordState.selectedDateRecords,
+      recordFoodIndex,
       weekSummaryText: recordState.weekSummaryText,
       monthSummaryText: recordState.monthSummaryText
     });
@@ -213,7 +262,6 @@ Page({
       const matchType = type === 'all' || food.type === type;
       const haystack = [
         food.name,
-        food.description,
         food.bestTime,
         food.cookingMethod,
         ...(food.ingredients || []),
@@ -236,13 +284,24 @@ Page({
     return customFoods.filter((food) =>
       [
         food.name,
-        food.description,
         food.bestTime,
         food.cookingMethod,
         ...(food.ingredients || []),
         ...(food.nutrients || []),
         ...((food.cookingSteps || []).map((step) => step.detail))
       ]
+        .join(' ')
+        .toLowerCase()
+        .includes(keyword)
+    );
+  },
+
+  applyRecordSearch(allFoods) {
+    const keyword = (this.data.recordSearchQuery || '').trim().toLowerCase();
+    if (!keyword) return allFoods;
+
+    return allFoods.filter((food) =>
+      [food.name, food.bestTime, food.cookingMethod, ...(food.ingredients || []), ...(food.nutrients || [])]
         .join(' ')
         .toLowerCase()
         .includes(keyword)
@@ -270,11 +329,7 @@ Page({
           .map((foodId) => allFoods.find((food) => food.id === foodId))
           .filter(Boolean)
           .map((food) => ({
-            id: food.id,
-            name: food.name,
-            typeLabel: TYPE_LABELS[food.type],
-            bestTime: food.bestTime,
-            isFavorite: !!food.isFavorite
+            ...food
           }))
       }))
     };
@@ -310,14 +365,27 @@ Page({
     return { date, foodIds };
   },
 
-  buildRecordState(records) {
+  buildRecordState(allFoods, records) {
     const { todayText, year, month } = getTodayParts();
     const recordYear = this.data.recordYear || year;
     const recordMonth = this.data.recordMonth || month;
     const selectedRecordDate = this.normalizeSelectedRecordDate(records, recordYear, recordMonth, this.data.selectedRecordDate || todayText);
     const monthPrefix = `${recordYear}-${String(recordMonth).padStart(2, '0')}`;
     const monthRecords = records.filter((record) => record.timestamp.startsWith(monthPrefix));
-    const selectedDateRecords = records.filter((record) => record.timestamp.startsWith(selectedRecordDate));
+    const selectedDateRecords = records
+      .filter((record) => record.timestamp.startsWith(selectedRecordDate))
+      .map((record) => {
+        const food = allFoods.find((item) => item.id === record.option.id);
+        if (!food) {
+          return null;
+        }
+
+        return {
+          ...food,
+          recordId: record.id
+        };
+      })
+      .filter(Boolean);
     const weekSummaryRecords = records.filter((record) => {
       const current = parseDate(formatDate(new Date(record.timestamp)));
       const weekStart = getWeekStart(parseDate(selectedRecordDate));
@@ -355,6 +423,12 @@ Page({
     this.setData({ activeTab: event.currentTarget.dataset.tab }, () => this.refreshState());
   },
 
+  handleHomeSubTabChange(event) {
+    const tab = event.currentTarget.dataset.tab;
+    if (!tab) return;
+    this.setData({ homeSubTab: tab });
+  },
+
   handleFilterChange(event) {
     const field = event.currentTarget.dataset.field;
     const value = Number(event.detail.value);
@@ -379,6 +453,18 @@ Page({
 
   clearCustomSearch() {
     this.setData({ customSearchQuery: '' }, () => this.refreshState());
+  },
+
+  handleRecordSearchInput(event) {
+    this.setData({ recordSearchQuery: event.detail.value, recordFoodIndex: 0 }, () => this.refreshState());
+  },
+
+  clearRecordSearch() {
+    this.setData({ recordSearchQuery: '', recordFoodIndex: 0 }, () => this.refreshState());
+  },
+
+  handleRecordFoodChange(event) {
+    this.setData({ recordFoodIndex: Number(event.detail.value) || 0 });
   },
 
   selectRecordDate(event) {
@@ -460,8 +546,9 @@ Page({
     wx.showToast({ title: `抽中了：${picked.name}`, icon: 'none' });
   },
 
-  pushRecord(food, source) {
+  pushRecord(food, source, dateText) {
     const records = getStorage(STORAGE_KEYS.records, []);
+    const timestamp = dateText ? new Date(`${dateText}T12:00:00`).toISOString() : new Date().toISOString();
     const record = {
       id: randomId(),
       option: {
@@ -476,7 +563,7 @@ Page({
         }
       },
       source,
-      timestamp: new Date().toISOString()
+      timestamp
     };
 
     setStorage(STORAGE_KEYS.records, [...records, record]);
@@ -514,7 +601,9 @@ Page({
     return {
       ingredientsText: (food.ingredients || []).join('\n'),
       cookingMethod: food.cookingMethod || '',
-      cookingStepsText: (food.cookingSteps || []).map((step) => step.detail).join('\n')
+      customSteps: (food.cookingSteps || []).map((step) => ({
+        detail: step.detail || ''
+      }))
     };
   },
 
@@ -544,6 +633,36 @@ Page({
     });
   },
 
+  addDetailStep() {
+    const customSteps = this.data.detailEditForm.customSteps || [];
+    this.setData({
+      'detailEditForm.customSteps': [...customSteps, getDefaultCustomStep()]
+    });
+  },
+
+  removeDetailStep(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    const customSteps = (this.data.detailEditForm.customSteps || []).filter((_, stepIndex) => stepIndex !== index);
+    this.setData({
+      'detailEditForm.customSteps': customSteps.length ? customSteps : [getDefaultCustomStep()]
+    });
+  },
+
+  handleDetailStepInput(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    const customSteps = (this.data.detailEditForm.customSteps || []).map((step, stepIndex) =>
+      stepIndex === index
+        ? {
+            ...step,
+            detail: event.detail.value
+          }
+        : step
+    );
+    this.setData({
+      'detailEditForm.customSteps': customSteps
+    });
+  },
+
   saveDetailEdit() {
     const food = this.data.detailFood;
     if (!food) return;
@@ -551,7 +670,7 @@ Page({
     const foodEdits = getStorage(STORAGE_KEYS.foodEdits, {});
     const ingredients = splitText(this.data.detailEditForm.ingredientsText, food.ingredients || []);
     const cookingMethod = (this.data.detailEditForm.cookingMethod || '').trim() || food.cookingMethod || '按个人习惯烹饪';
-    const cookingSteps = buildStepsFromText(this.data.detailEditForm.cookingStepsText || cookingMethod);
+    const cookingSteps = this.normalizeCustomSteps(this.data.detailEditForm.customSteps, cookingMethod);
 
     setStorage(STORAGE_KEYS.foodEdits, {
       ...foodEdits,
@@ -627,8 +746,67 @@ Page({
 
   handleCustomInput(event) {
     const field = event.currentTarget.dataset.field;
-    this.setData({
-      [`customForm.${field}`]: event.detail.value
+    this.updateCustomForm({ [field]: event.detail.value });
+  },
+
+  updateCustomForm(patch) {
+    const nextForm = {
+      ...this.data.customForm,
+      ...patch
+    };
+    this.setData(getCustomFormState(nextForm));
+  },
+
+  handleCustomPickerChange(event) {
+    const field = event.currentTarget.dataset.field;
+    const options = field === 'trafficLight' ? CUSTOM_TRAFFIC_OPTIONS : CUSTOM_TYPE_OPTIONS;
+    const index = Number(event.detail.value) || 0;
+    const selected = options[index];
+    if (!selected) return;
+    this.updateCustomForm({ [field]: selected.value });
+  },
+
+  toggleCustomMultiValue(event) {
+    const field = event.currentTarget.dataset.field;
+    const value = event.currentTarget.dataset.value;
+    if (!field || !value) return;
+    const currentValues = splitText(this.data.customForm[field] || '', []);
+    const nextValues = currentValues.includes(value)
+      ? currentValues.filter((item) => item !== value)
+      : [...currentValues, value];
+    this.updateCustomForm({
+      [field]: nextValues.join(',')
+    });
+  },
+
+  addCustomStep() {
+    const currentSteps = this.data.customForm.customSteps || [];
+    this.updateCustomForm({
+      customSteps: [...currentSteps, getDefaultCustomStep(currentSteps.length + 1)]
+    });
+  },
+
+  removeCustomStep(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    const currentSteps = (this.data.customForm.customSteps || []).filter((_, stepIndex) => stepIndex !== index);
+    this.updateCustomForm({
+      customSteps: currentSteps.length ? currentSteps : [getDefaultCustomStep()]
+    });
+  },
+
+  handleCustomStepInput(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    const nextSteps = (this.data.customForm.customSteps || []).map((step, stepIndex) =>
+      stepIndex === index
+        ? {
+            ...step,
+            detail: event.detail.value
+          }
+        : step
+    );
+
+    this.updateCustomForm({
+      customSteps: nextSteps
     });
   },
 
@@ -656,7 +834,7 @@ Page({
       ingredients: splitText(form.ingredientsText, ['按个人准备']),
       bestTime: (form.bestTime || '').trim() || '按需安排',
       cookingMethod: (form.cookingMethod || '').trim() || '按个人习惯烹饪',
-      cookingSteps: buildStepsFromText(form.cookingStepsText)
+      cookingSteps: this.normalizeCustomSteps(form.customSteps, form.cookingMethod)
     };
 
     const exists = customFoods.some((food) => food.id === id);
@@ -678,7 +856,7 @@ Page({
 
     this.setData({
       activeTab: 'custom',
-      customForm: {
+      ...getCustomFormState({
         id: food.id,
         name: food.name,
         description: food.description,
@@ -691,13 +869,26 @@ Page({
         ingredientsText: (food.ingredients || []).join(','),
         bestTime: food.bestTime,
         cookingMethod: food.cookingMethod,
-        cookingStepsText: (food.cookingSteps || []).map((step) => step.detail).join('\n')
-      }
+        customSteps: (food.cookingSteps || []).map((step, index) => ({
+          detail: step.detail || ''
+        }))
+      })
     });
   },
 
   deleteCustomFood(event) {
     const foodId = event.currentTarget.dataset.id;
+    this.deleteFoodById(foodId);
+  },
+
+  deleteDetailFood() {
+    const food = this.data.detailFood;
+    if (!food || food.origin !== 'user') return;
+    this.deleteFoodById(food.id, true);
+  },
+
+  deleteFoodById(foodId, closeDetail) {
+    if (!foodId) return;
     const customFoods = getStorage(STORAGE_KEYS.customFoods, []).filter((food) => food.id !== foodId);
     const favoriteIds = getStorage(STORAGE_KEYS.favoriteIds, []).filter((id) => id !== foodId);
     const foodEdits = getStorage(STORAGE_KEYS.foodEdits, {});
@@ -707,14 +898,15 @@ Page({
     setStorage(STORAGE_KEYS.favoriteIds, favoriteIds);
     setStorage(STORAGE_KEYS.foodEdits, foodEdits);
     this.resetCustomForm();
+    if (closeDetail) {
+      this.closeFoodDetail();
+    }
     this.refreshState();
     wx.showToast({ title: '已删除自定义菜品', icon: 'none' });
   },
 
   resetCustomForm() {
-    this.setData({
-      customForm: getDefaultCustomForm()
-    });
+    this.setData(getCustomFormState());
   },
 
   removeRecord(event) {
@@ -736,6 +928,17 @@ Page({
     });
   },
 
+  addRecordFood() {
+    const food = (this.data.filteredRecordFoods || [])[this.data.recordFoodIndex || 0];
+    if (!food) {
+      wx.showToast({ title: '请先选择菜品', icon: 'none' });
+      return;
+    }
+
+    this.pushRecord(food, 'custom', this.data.selectedRecordDate);
+    wx.showToast({ title: `已补录 ${food.name}`, icon: 'none' });
+  },
+
   normalizeEnumList(value, allowed, fallback) {
     const result = splitText(value)
       .map((item) => item.trim())
@@ -746,6 +949,22 @@ Page({
   normalizeSingle(value, allowed, fallback) {
     const current = (value || '').trim();
     return allowed.includes(current) ? current : fallback;
+  },
+
+  normalizeCustomSteps(steps, cookingMethod) {
+    const normalized = (steps || [])
+      .map((step, index) => ({
+        title: `步骤 ${index + 1}`,
+        duration: '按需',
+        detail: (step.detail || '').trim()
+      }))
+      .filter((step) => step.detail);
+
+    if (normalized.length) {
+      return normalized;
+    }
+
+    return buildStepsFromText(cookingMethod || '');
   },
 
   noop() {}
