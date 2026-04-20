@@ -1,0 +1,388 @@
+<view class="page-shell">
+  <view class="backdrop backdrop-one"></view>
+  <view class="backdrop backdrop-two"></view>
+
+  <view class="hero">
+    <view class="hero-top">
+      <view class="hero-copy">
+        <view class="hero-eyebrow">FoodPlan Mini Program</view>
+        <view class="hero-title">今天吃什么，交给推荐、筛选和计划</view>
+        <view class="hero-subtitle">把原版网页里的推荐、收藏、计划和记录整理进一个更顺手的移动端入口。</view>
+      </view>
+      <view class="hero-badge">本地保存</view>
+    </view>
+
+    <view class="hero-status">
+      <view class="hero-status-item">
+        <view class="hero-status-label">今天</view>
+        <view class="hero-status-value">{{todayText}}</view>
+      </view>
+      <view class="hero-status-item">
+        <view class="hero-status-label">时令</view>
+        <view class="hero-status-value">{{currentSeasonLabel}}</view>
+      </view>
+      <view class="hero-status-item">
+        <view class="hero-status-label">场景</view>
+        <view class="hero-status-value">{{currentDateTagLabel}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="nav-card">
+    <view class="nav-head">
+      <view>
+        <view class="section-eyebrow">功能导航</view>
+        <view class="nav-title">切换到不同功能区</view>
+      </view>
+      <view class="nav-meta">共 {{tabOptions.length}} 个模块</view>
+    </view>
+    <scroll-view scroll-x class="tab-scroll" enable-flex="true">
+      <view class="tab-row">
+        <block wx:for="{{tabOptions}}" wx:key="value">
+          <view class="tab-pill {{activeTab === item.value ? 'active' : ''}}" data-tab="{{item.value}}" bindtap="handleTabChange">
+            {{item.label}}
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view wx:if="{{activeTab === 'home'}}" class="section-stack">
+    <view class="overview-card">
+      <view class="section-eyebrow">当前概览</view>
+      <view class="overview-grid">
+        <view class="overview-item">
+          <view class="overview-value">{{favoriteCount}}</view>
+          <view class="overview-label">已收藏菜品</view>
+        </view>
+        <view class="overview-item">
+          <view class="overview-value">{{customCount}}</view>
+          <view class="overview-label">自定义菜品</view>
+        </view>
+        <view class="overview-item">
+          <view class="overview-value">{{recordCount}}</view>
+          <view class="overview-label">历史记录</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="feature-card feature-warm">
+      <view class="feature-header">
+        <view>
+          <view class="section-eyebrow">每日推荐</view>
+          <view class="section-title">按当前时令先给你一个稳妥选择</view>
+        </view>
+        <view class="feature-tag">Today Pick</view>
+      </view>
+      <view class="section-desc">适合打开应用后第一步使用，先缩小选择范围，再决定要不要继续看详情。</view>
+      <button class="primary-btn" bindtap="makeTodayPick">推荐今日一餐</button>
+      <view wx:if="{{todayPick}}" class="result-card">
+        <view class="result-title">{{todayPick.name}}</view>
+        <view class="result-meta">{{todayPick.bestTime}} · {{todayPick.calories}} kcal / 100g</view>
+        <view class="result-desc">{{todayPick.description}}</view>
+        <button class="ghost-btn subtle-btn" data-id="{{todayPick.id}}" bindtap="openFoodDetail">查看详情</button>
+      </view>
+    </view>
+
+    <view class="feature-card feature-cool">
+      <view class="feature-header">
+        <view>
+          <view class="section-eyebrow">随心转盘</view>
+          <view class="section-title">当你不想纠结，就直接随机来一道</view>
+        </view>
+        <view class="feature-tag cool">Quick Spin</view>
+      </view>
+      <picker mode="selector" range="{{spinnerModes}}" range-key="label" value="{{spinnerModeIndex}}" bindchange="handleSpinnerModeChange">
+        <view class="picker-field">抽取范围：{{spinnerModes[spinnerModeIndex].label}}</view>
+      </picker>
+      <button class="primary-btn cool-btn" bindtap="spinRandom">随机来一道</button>
+      <view wx:if="{{randomPick}}" class="result-card accent">
+        <view class="result-title">{{randomPick.name}}</view>
+        <view class="result-meta">{{randomPick.bestTime}} · {{randomPick.calories}} kcal / 100g</view>
+        <view class="result-desc">{{randomPick.description}}</view>
+        <button class="ghost-btn subtle-btn" data-id="{{randomPick.id}}" bindtap="openFoodDetail">查看详情</button>
+      </view>
+    </view>
+
+    <view class="split-grid">
+      <view class="card soft-card">
+        <view class="section-eyebrow">心动菜品</view>
+        <view class="section-title">收藏夹</view>
+        <view wx:if="{{favoriteFoods.length === 0}}" class="empty-text">还没有收藏菜品，可以去菜谱页点亮心动。</view>
+        <view wx:else class="chip-list">
+          <block wx:for="{{favoriteFoods}}" wx:key="id">
+            <view class="food-chip" data-id="{{item.id}}" bindtap="previewFavorite">
+              <view class="food-chip-title">{{item.name}}</view>
+              <view class="food-chip-meta">{{item.bestTime}}</view>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <view class="card soft-card">
+        <view class="section-eyebrow">本地说明</view>
+        <view class="section-title">隐私与数据</view>
+        <block wx:for="{{appSummary}}" wx:key="*this">
+          <view class="summary-row">{{index + 1}}. {{item}}</view>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab === 'catalog'}}" class="section-stack">
+    <view class="card soft-card">
+      <view class="section-eyebrow">筛选器</view>
+      <view class="section-title">按时令、场景和类型快速定位</view>
+      <view class="search-shell">
+        <input
+          class="search-input"
+          value="{{searchQuery}}"
+          bindinput="handleSearchInput"
+          placeholder="搜索菜名、描述、食材或营养标签"
+          confirm-type="search"
+        />
+        <button wx:if="{{searchQuery}}" class="search-clear" bindtap="clearSearch">清空</button>
+      </view>
+      <view class="filter-grid">
+        <picker mode="selector" range="{{seasonOptions}}" range-key="label" value="{{seasonIndex}}" data-field="seasonIndex" bindchange="handleFilterChange">
+          <view class="picker-field">{{seasonOptions[seasonIndex].label}}</view>
+        </picker>
+        <picker mode="selector" range="{{dateTagOptions}}" range-key="label" value="{{dateTagIndex}}" data-field="dateTagIndex" bindchange="handleFilterChange">
+          <view class="picker-field">{{dateTagOptions[dateTagIndex].label}}</view>
+        </picker>
+        <picker mode="selector" range="{{trafficOptions}}" range-key="label" value="{{trafficIndex}}" data-field="trafficIndex" bindchange="handleFilterChange">
+          <view class="picker-field">{{trafficOptions[trafficIndex].label}}</view>
+        </picker>
+        <picker mode="selector" range="{{typeOptions}}" range-key="label" value="{{typeIndex}}" data-field="typeIndex" bindchange="handleFilterChange">
+          <view class="picker-field">{{typeOptions[typeIndex].label}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="food-list">
+      <view class="result-count" wx:if="{{catalogFoods.length > 0}}">找到 {{catalogFoods.length}} 道菜</view>
+      <block wx:for="{{catalogFoods}}" wx:key="id">
+        <view class="food-card premium-card">
+          <view class="food-card-main" data-id="{{item.id}}" bindtap="openFoodDetail">
+            <view class="food-top-row">
+              <view class="food-name">{{item.name}}</view>
+              <view class="food-calories">{{item.calories}} kcal</view>
+            </view>
+            <view class="food-desc">{{item.description}}</view>
+            <view class="food-badges">
+              <text class="badge">{{item.typeLabel}}</text>
+              <text class="badge">{{item.trafficLabel}}</text>
+              <text class="badge" wx:if="{{item.origin === 'user'}}">自定义</text>
+              <text class="badge badge-fav" wx:if="{{item.isFavorite}}">已收藏</text>
+            </view>
+          </view>
+          <view class="food-actions">
+            <button class="mini-btn" data-id="{{item.id}}" bindtap="openFoodDetail">详情</button>
+            <button class="mini-btn {{item.isFavorite ? 'mini-btn-active' : ''}}" data-id="{{item.id}}" bindtap="toggleFavorite">
+              {{item.isFavorite ? '取消收藏' : '收藏'}}
+            </button>
+            <button class="mini-btn" wx:if="{{item.origin === 'user'}}" data-id="{{item.id}}" bindtap="editCustomFood">编辑</button>
+          </view>
+        </view>
+      </block>
+      <view wx:if="{{catalogFoods.length === 0}}" class="card empty-text">当前筛选条件下没有匹配菜品。</view>
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab === 'custom'}}" class="section-stack">
+    <view class="card soft-card">
+      <view class="section-eyebrow">自定义菜谱</view>
+      <view class="section-title">{{customForm.id ? '编辑自定义菜品' : '新增自定义菜品'}}</view>
+      <textarea class="text-area compact-area" placeholder="菜名" value="{{customForm.name}}" data-field="name" bindinput="handleCustomInput"></textarea>
+      <textarea class="text-area compact-area" placeholder="一句话描述" value="{{customForm.description}}" data-field="description" bindinput="handleCustomInput"></textarea>
+      <input class="text-input" type="number" placeholder="热量（kcal / 100g）" value="{{customForm.calories}}" data-field="calories" bindinput="handleCustomInput" />
+      <input class="text-input" placeholder="灯号：green / yellow / red" value="{{customForm.trafficLight}}" data-field="trafficLight" bindinput="handleCustomInput" />
+      <input class="text-input" placeholder="分类：vegetarian / meat / soup / staple" value="{{customForm.type}}" data-field="type" bindinput="handleCustomInput" />
+      <input class="text-input" placeholder="适用时令，如 spring,summer" value="{{customForm.seasonsText}}" data-field="seasonsText" bindinput="handleCustomInput" />
+      <input class="text-input" placeholder="适用场景，如 weekday,weekend" value="{{customForm.dateTagsText}}" data-field="dateTagsText" bindinput="handleCustomInput" />
+      <input class="text-input" placeholder="营养标签，逗号分隔" value="{{customForm.nutrientsText}}" data-field="nutrientsText" bindinput="handleCustomInput" />
+      <textarea class="text-area" placeholder="食材，逗号或换行分隔" value="{{customForm.ingredientsText}}" data-field="ingredientsText" bindinput="handleCustomInput"></textarea>
+      <input class="text-input" placeholder="最佳食用时段" value="{{customForm.bestTime}}" data-field="bestTime" bindinput="handleCustomInput" />
+      <textarea class="text-area" placeholder="烹饪说明" value="{{customForm.cookingMethod}}" data-field="cookingMethod" bindinput="handleCustomInput"></textarea>
+      <textarea class="text-area" placeholder="步骤详情，每行一步" value="{{customForm.cookingStepsText}}" data-field="cookingStepsText" bindinput="handleCustomInput"></textarea>
+      <view class="row-actions">
+        <button class="primary-btn" bindtap="saveCustomFood">保存菜品</button>
+        <button class="ghost-btn subtle-btn" bindtap="resetCustomForm">重置表单</button>
+      </view>
+    </view>
+
+    <view class="card soft-card">
+      <view class="section-eyebrow">我的菜品</view>
+      <view class="section-title">已保存的自定义内容</view>
+      <view class="search-shell">
+        <input
+          class="search-input"
+          value="{{customSearchQuery}}"
+          bindinput="handleCustomSearchInput"
+          placeholder="搜索我的菜品、描述、食材或做法"
+          confirm-type="search"
+        />
+        <button wx:if="{{customSearchQuery}}" class="search-clear" bindtap="clearCustomSearch">清空</button>
+      </view>
+      <view wx:if="{{customFoods.length === 0}}" class="empty-text">还没有自定义菜品，先新增一道吧。</view>
+      <view wx:elif="{{filteredCustomFoods.length === 0}}" class="empty-text">没有找到匹配的自定义菜品。</view>
+      <block wx:for="{{filteredCustomFoods}}" wx:key="id">
+        <view class="custom-item premium-card">
+          <view class="custom-main" data-id="{{item.id}}" bindtap="openFoodDetail">
+            <view class="food-name">{{item.name}}</view>
+            <view class="food-desc">{{item.description}}</view>
+          </view>
+          <view class="food-actions">
+            <button class="mini-btn" data-id="{{item.id}}" bindtap="editCustomFood">编辑</button>
+            <button class="mini-btn {{item.isFavorite ? 'mini-btn-active' : ''}}" data-id="{{item.id}}" bindtap="toggleFavorite">
+              {{item.isFavorite ? '取消收藏' : '收藏'}}
+            </button>
+            <button class="mini-btn danger-btn" data-id="{{item.id}}" bindtap="deleteCustomFood">删除</button>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab === 'planner'}}" class="section-stack">
+    <view class="card soft-card">
+      <view class="section-eyebrow">每周安排</view>
+      <view class="section-title">生成 7 天吃饭计划</view>
+      <input class="text-input" type="number" value="{{weeklyDailyCount}}" bindinput="handleWeeklyCountInput" />
+      <button class="primary-btn" bindtap="regenerateWeeklyPlan">重新生成 7 天计划</button>
+      <view class="section-desc">从 {{weeklyPlan.startDate}} 开始，每天推荐 {{weeklyPlan.dailyCount}} 道菜。</view>
+    </view>
+
+    <block wx:for="{{weeklyPlan.days}}" wx:key="date">
+      <view class="card planner-card">
+        <view class="planner-title">{{item.weekdayLabel}} · {{item.date}}</view>
+        <view class="chip-list">
+          <block wx:for="{{item.foodCards}}" wx:key="id">
+            <view class="food-chip" data-id="{{item.id}}" bindtap="openFoodDetail">
+              <view class="food-chip-title">{{item.name}}</view>
+              <view class="food-chip-meta">{{item.typeLabel}} · {{item.bestTime}}</view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{activeTab === 'records'}}" class="section-stack">
+    <view class="card soft-card">
+      <view class="section-eyebrow">历史记录</view>
+      <view class="section-title">用日历查看每天吃过什么</view>
+      <view class="record-toolbar">
+        <button class="mini-btn" data-direction="-1" bindtap="changeRecordMonth">上个月</button>
+        <view class="record-month-label">{{recordMonthLabel}}</view>
+        <button class="mini-btn" data-direction="1" bindtap="changeRecordMonth">下个月</button>
+      </view>
+      <button class="ghost-btn subtle-btn" bindtap="goToTodayRecords">回到今天</button>
+      <button class="ghost-btn subtle-btn danger-btn" bindtap="clearRecords">清空全部记录</button>
+    </view>
+
+    <view class="record-summary-grid">
+      <view class="card soft-card">
+        <view class="section-eyebrow">本周摘要</view>
+        <view class="summary-row strong-row">{{weekSummaryText}}</view>
+      </view>
+      <view class="card soft-card">
+        <view class="section-eyebrow">本月摘要</view>
+        <view class="summary-row strong-row">{{monthSummaryText}}</view>
+      </view>
+    </view>
+
+    <view class="card soft-card">
+      <view class="calendar-weekdays">
+        <view>一</view>
+        <view>二</view>
+        <view>三</view>
+        <view>四</view>
+        <view>五</view>
+        <view>六</view>
+        <view>日</view>
+      </view>
+      <view class="calendar-grid">
+        <block wx:for="{{recordCalendarDays}}" wx:key="date">
+          <view wx:if="{{!item}}" class="calendar-day blank"></view>
+          <view
+            wx:else
+            class="calendar-day {{item.isSelected ? 'selected' : ''}} {{item.recordCount ? 'has-records' : ''}}"
+            data-date="{{item.date}}"
+            bindtap="selectRecordDate"
+          >
+            <view class="calendar-day-number">{{item.date.slice(8, 10)}}</view>
+            <view class="calendar-day-count" wx:if="{{item.recordCount}}">{{item.recordCount}} 条</view>
+            <view class="calendar-day-preview" wx:if="{{item.preview}}">{{item.preview}}</view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <view class="card soft-card">
+      <view class="section-eyebrow">当天记录</view>
+      <view class="section-title">{{selectedRecordDate}}</view>
+      <view wx:if="{{selectedDateRecords.length === 0}}" class="empty-text">这一天还没有记录。</view>
+      <block wx:for="{{selectedDateRecords}}" wx:key="id">
+        <view class="record-card premium-card day-record-card">
+          <view class="record-main">
+            <view class="record-title">{{item.option.label}}</view>
+            <view class="record-meta">{{item.sourceLabel}} · {{item.displayTime}}</view>
+          </view>
+          <view class="food-actions">
+            <button class="mini-btn" data-id="{{item.option.id}}" bindtap="openFoodDetail">查看</button>
+            <button class="mini-btn danger-btn" data-id="{{item.id}}" bindtap="removeRecord">删除</button>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view wx:if="{{detailVisible}}" class="detail-mask" bindtap="closeFoodDetail">
+    <view class="detail-panel" catchtap="noop">
+      <view class="detail-close" bindtap="closeFoodDetail">关闭</view>
+      <view class="detail-title">{{detailFood.name}}</view>
+      <view class="detail-subtitle">{{detailFood.description}}</view>
+      <view class="detail-tags">
+        <text class="badge">{{detailFood.typeLabel}}</text>
+        <text class="badge">{{detailFood.trafficLabel}}</text>
+        <text class="badge">{{detailFood.seasonText}}</text>
+        <text class="badge">{{detailFood.dateTagText}}</text>
+      </view>
+      <view class="detail-grid">
+        <view class="detail-block">
+          <view class="detail-label">热量</view>
+          <view>{{detailFood.calories}} kcal / 100g</view>
+        </view>
+        <view class="detail-block">
+          <view class="detail-label">营养亮点</view>
+          <view>{{detailFood.nutrientsText}}</view>
+        </view>
+      </view>
+      <view class="detail-block">
+        <view class="detail-label">所需食材</view>
+        <view wx:if="{{!detailEditing}}">{{detailFood.ingredientsText}}</view>
+        <textarea wx:if="{{detailEditing}}" class="text-area detail-edit-area" value="{{detailEditForm.ingredientsText}}" data-field="ingredientsText" bindinput="handleDetailEditInput" placeholder="每行一个食材，或使用逗号分隔"></textarea>
+      </view>
+      <view class="detail-block">
+        <view class="detail-label">做法</view>
+        <view wx:if="{{!detailEditing}}">{{detailFood.cookingMethod}}</view>
+        <textarea wx:if="{{detailEditing}}" class="text-area detail-edit-area" value="{{detailEditForm.cookingMethod}}" data-field="cookingMethod" bindinput="handleDetailEditInput" placeholder="写一段整体烹饪说明"></textarea>
+      </view>
+      <view class="detail-block">
+        <view class="detail-label">步骤</view>
+        <block wx:if="{{!detailEditing}}" wx:for="{{detailFood.stepLines}}" wx:key="*this">
+          <view class="step-row">{{item}}</view>
+        </block>
+        <textarea wx:if="{{detailEditing}}" class="text-area detail-edit-area" value="{{detailEditForm.cookingStepsText}}" data-field="cookingStepsText" bindinput="handleDetailEditInput" placeholder="每行一个步骤"></textarea>
+      </view>
+      <view class="row-actions">
+        <button class="mini-btn {{detailFood.isFavorite ? 'mini-btn-active' : ''}}" data-id="{{detailFood.id}}" bindtap="toggleFavorite">
+          {{detailFood.isFavorite ? '取消收藏' : '收藏'}}
+        </button>
+        <button class="mini-btn" bindtap="toggleDetailEditing">{{detailEditing ? '取消编辑' : '编辑菜品'}}</button>
+        <button wx:if="{{detailEditing}}" class="mini-btn mini-btn-active" bindtap="saveDetailEdit">保存修改</button>
+      </view>
+    </view>
+  </view>
+</view>

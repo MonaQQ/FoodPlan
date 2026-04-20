@@ -1,9 +1,9 @@
 {
-  "appid": "wxa010f8911ce107f8",
+  "appid": "wx0d3ff9257884dd5c",
   "projectname": "FoodPlanMiniapp",
   "compileType": "miniprogram",
-  "miniprogramRoot": "./",
-  "srcMiniprogramRoot": "./",
+  "miniprogramRoot": "miniprogram/",
+  "srcMiniprogramRoot": "miniprogram/",
   "setting": {
     "es6": true,
     "enhance": true,
