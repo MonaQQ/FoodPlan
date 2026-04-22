@@ -716,8 +716,8 @@ button {
 }
 
 .badge.badge-type {
-  background: #fff0e5;
-  color: #d9651f;
+  background: #fff3ea;
+  color: #dc6d2d;
 }
 
 .badge.badge-traffic {
@@ -725,31 +725,31 @@ button {
 }
 
 .badge.badge-traffic-green {
-  background: #ebfbef;
-  border-color: rgba(187, 247, 208, 0.9);
+  background: #eefcf1;
+  border-color: rgba(187, 247, 208, 0.95);
   color: #2f855a;
 }
 
 .badge.badge-traffic-yellow {
-  background: #fff8dc;
-  border-color: rgba(254, 240, 138, 0.9);
+  background: #fff9e5;
+  border-color: rgba(254, 240, 138, 0.95);
   color: #a86f12;
 }
 
 .badge.badge-traffic-red {
-  background: #fff0f3;
-  border-color: rgba(253, 205, 214, 0.95);
+  background: #fff1f5;
+  border-color: rgba(253, 205, 214, 0.98);
   color: #c1536d;
 }
 
 .badge.badge-season {
-  background: #e9f8ff;
-  color: #2f7fb3;
+  background: #edf9ff;
+  color: #3a86b8;
 }
 
 .badge.badge-date {
-  background: #f2eaff;
-  color: #7357c8;
+  background: #eef6ff;
+  color: #3f84c6;
 }
 
 .nutrients-row {
@@ -762,9 +762,9 @@ button {
 .nutrient-chip {
   padding: 8rpx 14rpx;
   border-radius: 999rpx;
-  background: #edf6ff;
-  border: 1rpx solid #d7eafe;
-  color: #317ac8;
+  background: #f4edff;
+  border: 1rpx solid #e5d8ff;
+  color: #7a5fcd;
   font-size: 26rpx;
 }
 
