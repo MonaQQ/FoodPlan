@@ -112,7 +112,7 @@
                 <view class="food-description">{{item.description}}</view>
                 <view class="food-badges">
                   <text class="badge badge-type">{{item.typeLabel}}</text>
-                  <text class="badge badge-traffic">{{item.trafficLabel}}</text>
+                  <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
                   <text class="badge badge-season">{{item.seasonText}}</text>
                   <text class="badge badge-date">{{item.dateTagText}}</text>
                 </view>
@@ -190,17 +190,17 @@
             <view class="food-card-header">
               <view class="food-card-title-row">
                 <view class="food-name">{{item.name}}</view>
+                <button class="collect-chip spinner-add-chip title-add-chip {{item.isInSpinnerPool ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleSpinnerSelection" plain="{{false}}">{{item.isInSpinnerPool ? '已选' : '+'}}</button>
               </view>
               <view class="food-card-meta-row">
                 <button class="collect-chip {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '已藏' : '收藏'}}</button>
-                <button class="collect-chip spinner-add-chip {{item.isInSpinnerPool ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleSpinnerSelection" plain="{{false}}">{{item.isInSpinnerPool ? '已选' : '+'}}</button>
                 <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
               </view>
             </view>
           <view class="food-description">{{item.description}}</view>
           <view class="food-badges">
             <text class="badge badge-type">{{item.typeLabel}}</text>
-            <text class="badge badge-traffic">{{item.trafficLabel}}</text>
+            <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
             <text class="badge badge-season">{{item.seasonText}}</text>
             <text class="badge badge-date">{{item.dateTagText}}</text>
           </view>
@@ -303,7 +303,7 @@
             <view class="food-description">{{item.description}}</view>
             <view class="food-badges">
               <text class="badge badge-type">{{item.typeLabel}}</text>
-              <text class="badge badge-traffic">{{item.trafficLabel}}</text>
+              <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
               <text class="badge badge-season">{{item.seasonText}}</text>
               <text class="badge badge-date">{{item.dateTagText}}</text>
             </view>
@@ -346,7 +346,7 @@
                 <view class="food-description">{{item.description}}</view>
                 <view class="food-badges">
                   <text class="badge badge-type">{{item.typeLabel}}</text>
-                  <text class="badge badge-traffic">{{item.trafficLabel}}</text>
+                  <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
                   <text class="badge badge-season">{{item.seasonText}}</text>
                   <text class="badge badge-date">{{item.dateTagText}}</text>
                 </view>
@@ -440,7 +440,7 @@
             <view class="food-description">{{item.description}}</view>
             <view class="food-badges">
               <text class="badge badge-type">{{item.typeLabel}}</text>
-              <text class="badge badge-traffic">{{item.trafficLabel}}</text>
+              <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
               <text class="badge badge-season">{{item.seasonText}}</text>
               <text class="badge badge-date">{{item.dateTagText}}</text>
             </view>
@@ -464,10 +464,10 @@
       <view class="detail-title">{{detailFood.name}}</view>
       <view class="detail-subtitle">{{detailFood.description}}</view>
       <view class="detail-tags">
-        <text class="badge">{{detailFood.typeLabel}}</text>
-        <text class="badge">{{detailFood.trafficLabel}}</text>
-        <text class="badge">{{detailFood.seasonText}}</text>
-        <text class="badge">{{detailFood.dateTagText}}</text>
+        <text class="badge badge-type">{{detailFood.typeLabel}}</text>
+        <text class="badge badge-traffic badge-traffic-{{detailFood.trafficLight}}">{{detailFood.trafficLabel}}</text>
+        <text class="badge badge-season">{{detailFood.seasonText}}</text>
+        <text class="badge badge-date">{{detailFood.dateTagText}}</text>
       </view>
       <view class="detail-grid">
         <view class="detail-block">
@@ -526,8 +526,3 @@
     </block>
   </view>
 </view>
-
-
-
-
-

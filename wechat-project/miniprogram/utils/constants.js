@@ -14,10 +14,10 @@ const DATE_TAG_OPTIONS = [
 ];
 
 const TRAFFIC_OPTIONS = [
-  { value: 'all', label: '全部灯号' },
-  { value: 'green', label: '绿灯' },
-  { value: 'yellow', label: '黄灯' },
-  { value: 'red', label: '红灯' }
+  { value: 'all', label: '红绿灯' },
+  { value: 'green', label: '绿灯（可常吃）' },
+  { value: 'yellow', label: '黄灯（适量吃）' },
+  { value: 'red', label: '红灯（偶尔吃）' }
 ];
 
 const TYPE_OPTIONS = [
@@ -42,9 +42,9 @@ const DATE_TAG_LABELS = {
 };
 
 const TRAFFIC_LABELS = {
-  green: '绿灯，可常吃',
-  yellow: '黄灯，适量吃',
-  red: '红灯，偶尔吃'
+  green: '绿灯',
+  yellow: '黄灯',
+  red: '红灯'
 };
 
 const TYPE_LABELS = {
