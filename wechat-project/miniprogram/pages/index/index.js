@@ -34,11 +34,16 @@ const CUSTOM_TYPE_OPTIONS = TYPE_OPTIONS.filter((item) => item.value !== 'all');
 const CUSTOM_SEASON_OPTIONS = SEASON_OPTIONS.filter((item) => item.value !== 'all');
 const CUSTOM_DATE_TAG_OPTIONS = DATE_TAG_OPTIONS.filter((item) => item.value !== 'all');
 const SOUP_KEYWORD_PATTERN = /(汤|羹|浓汤)$/;
+const STAPLE_KEYWORD_PATTERN = /(面|饭|粥|粉|饺子|馄饨|包子|炒饭|盖饭)$/;
+const STAPLE_ID_PATTERN = /(noodle|bowl|congee|dumpling|soba|rice|pasta)/;
 
 function inferFoodType(food = {}) {
   const currentType = food.type;
   if (currentType === 'soup') {
     return 'soup';
+  }
+  if (currentType === 'staple') {
+    return 'staple';
   }
 
   const id = String(food.id || '').toLowerCase();
@@ -47,6 +52,9 @@ function inferFoodType(food = {}) {
 
   if (id.includes('soup') || SOUP_KEYWORD_PATTERN.test(name) || description.includes('汤品')) {
     return 'soup';
+  }
+  if (STAPLE_ID_PATTERN.test(id) || STAPLE_KEYWORD_PATTERN.test(name) || description.includes('主食')) {
+    return 'staple';
   }
 
   return currentType;
