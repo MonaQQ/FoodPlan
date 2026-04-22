@@ -110,7 +110,7 @@ button {
 .hero-status {
   margin-top: 24rpx;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16rpx;
 }
 
@@ -365,7 +365,7 @@ button {
 
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16rpx;
   margin-top: 12rpx;
 }
@@ -745,11 +745,6 @@ button {
 .badge.badge-season {
   background: #edf9ff;
   color: #3a86b8;
-}
-
-.badge.badge-date {
-  background: #eef6ff;
-  color: #3f84c6;
 }
 
 .nutrients-row {

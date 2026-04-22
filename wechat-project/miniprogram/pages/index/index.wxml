@@ -20,10 +20,6 @@
           <view class="hero-status-label">时令</view>
           <view class="hero-status-value">{{currentSeasonLabel}}</view>
         </view>
-        <view class="hero-status-item">
-          <view class="hero-status-label">场景</view>
-          <view class="hero-status-value">{{currentDateTagLabel}}</view>
-        </view>
       </view>
     </view>
 
@@ -53,7 +49,6 @@
             <view class="result-meta">{{randomPick.bestTime}} · {{randomPick.calories}} kcal / 100g</view>
             <view class="result-desc">{{randomPick.description}}</view>
             <button class="primary-btn confirm-pick-btn {{randomPickRecorded ? 'disabled' : ''}}" bindtap="confirmRandomPick">{{randomPickRecorded ? '今天已记录' : '就要这个菜'}}</button>
-            <button class="ghost-btn subtle-btn" data-id="{{randomPick.id}}" bindtap="openFoodDetail">查看详情</button>
           </view>
           <view class="saved-food-summary spinner-pool-panel">
             <view class="saved-food-count">已选 {{spinnerSelectedFoods.length}} 道转盘菜品</view>
@@ -114,7 +109,6 @@
                   <text class="badge badge-type">{{item.typeLabel}}</text>
                   <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
                   <text class="badge badge-season">{{item.seasonText}}</text>
-                  <text class="badge badge-date">{{item.dateTagText}}</text>
                 </view>
                 <view class="nutrients-row">
                   <block wx:for="{{item.nutrients}}" wx:key="*this">
@@ -162,7 +156,7 @@
   <view wx:if="{{activeTab === 'catalog'}}" class="section-stack">
     <view class="card soft-card">
       <view class="section-eyebrow">筛选器</view>
-      <view class="section-title">按时令、场景和类型快速定位</view>
+      <view class="section-title">按时令、分类和难度快速定位</view>
       <view class="search-shell">
         <input class="search-input" value="{{searchQuery}}" bindinput="handleSearchInput" placeholder="搜索菜名、食材、营养或做法" confirm-type="search" />
         <button wx:if="{{searchQuery}}" class="search-clear" bindtap="clearSearch">清空</button>
@@ -170,9 +164,6 @@
       <view class="filter-grid">
         <picker mode="selector" range="{{seasonOptions}}" range-key="label" value="{{seasonIndex}}" data-field="seasonIndex" bindchange="handleFilterChange">
           <view class="picker-field">{{seasonOptions[seasonIndex].label}}</view>
-        </picker>
-        <picker mode="selector" range="{{dateTagOptions}}" range-key="label" value="{{dateTagIndex}}" data-field="dateTagIndex" bindchange="handleFilterChange">
-          <view class="picker-field">{{dateTagOptions[dateTagIndex].label}}</view>
         </picker>
         <picker mode="selector" range="{{trafficOptions}}" range-key="label" value="{{trafficIndex}}" data-field="trafficIndex" bindchange="handleFilterChange">
           <view class="picker-field">{{trafficOptions[trafficIndex].label}}</view>
@@ -202,7 +193,6 @@
             <text class="badge badge-type">{{item.typeLabel}}</text>
             <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
             <text class="badge badge-season">{{item.seasonText}}</text>
-            <text class="badge badge-date">{{item.dateTagText}}</text>
           </view>
           <view class="nutrients-row">
             <block wx:for="{{item.nutrients}}" wx:key="*this">
@@ -238,15 +228,9 @@
         </picker>
       </view>
 
-      <view class="form-section-title">时令与场景</view>
+      <view class="form-section-title">时令</view>
       <checkbox-group class="choice-group compact" data-field="seasonsText" bindchange="handleCustomMultiChange">
         <label wx:for="{{customSeasonChoiceOptions}}" wx:key="value" class="choice-pill checkbox-pill {{item.checked ? 'active' : ''}}">
-          <checkbox value="{{item.value}}" checked="{{item.checked}}" color="#f97316" />
-          <text class="choice-label">{{item.label}}</text>
-        </label>
-      </checkbox-group>
-      <checkbox-group class="choice-group compact" data-field="dateTagsText" bindchange="handleCustomMultiChange">
-        <label wx:for="{{customDateTagChoiceOptions}}" wx:key="value" class="choice-pill checkbox-pill {{item.checked ? 'active' : ''}}">
           <checkbox value="{{item.value}}" checked="{{item.checked}}" color="#f97316" />
           <text class="choice-label">{{item.label}}</text>
         </label>
@@ -305,7 +289,6 @@
               <text class="badge badge-type">{{item.typeLabel}}</text>
               <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
               <text class="badge badge-season">{{item.seasonText}}</text>
-              <text class="badge badge-date">{{item.dateTagText}}</text>
             </view>
             <view class="nutrients-row">
               <block wx:for="{{item.nutrients}}" wx:key="*this">
@@ -348,7 +331,6 @@
                   <text class="badge badge-type">{{item.typeLabel}}</text>
                   <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
                   <text class="badge badge-season">{{item.seasonText}}</text>
-                  <text class="badge badge-date">{{item.dateTagText}}</text>
                 </view>
                 <view class="nutrients-row">
                   <block wx:for="{{item.nutrients}}" wx:key="*this">
@@ -442,7 +424,6 @@
               <text class="badge badge-type">{{item.typeLabel}}</text>
               <text class="badge badge-traffic badge-traffic-{{item.trafficLight}}">{{item.trafficLabel}}</text>
               <text class="badge badge-season">{{item.seasonText}}</text>
-              <text class="badge badge-date">{{item.dateTagText}}</text>
             </view>
             <view class="nutrients-row">
               <block wx:for="{{item.nutrients}}" wx:key="*this">
@@ -467,7 +448,6 @@
         <text class="badge badge-type">{{detailFood.typeLabel}}</text>
         <text class="badge badge-traffic badge-traffic-{{detailFood.trafficLight}}">{{detailFood.trafficLabel}}</text>
         <text class="badge badge-season">{{detailFood.seasonText}}</text>
-        <text class="badge badge-date">{{detailFood.dateTagText}}</text>
       </view>
       <view class="detail-grid">
         <view class="detail-block">

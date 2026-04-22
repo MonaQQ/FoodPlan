@@ -6,11 +6,6 @@ function getCurrentSeason(date = new Date()) {
   return 'winter';
 }
 
-function getCurrentDateTag(date = new Date()) {
-  const day = date.getDay();
-  return day === 0 || day === 6 ? 'weekend' : 'weekday';
-}
-
 function pad(value) {
   return String(value).padStart(2, '0');
 }
@@ -65,7 +60,6 @@ module.exports = {
   buildStepsFromText,
   formatDate,
   formatWeekday,
-  getCurrentDateTag,
   getCurrentSeason,
   pickRandom,
   randomId,

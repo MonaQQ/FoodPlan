@@ -1,7 +1,5 @@
 const { FOODS } = require('../../utils/foods');
 const {
-  DATE_TAG_LABELS,
-  DATE_TAG_OPTIONS,
   SEASON_LABELS,
   SEASON_OPTIONS,
   SPINNER_MODES,
@@ -15,7 +13,6 @@ const {
   buildStepsFromText,
   formatDate,
   formatWeekday,
-  getCurrentDateTag,
   getCurrentSeason,
   pickRandom,
   randomId,
@@ -32,7 +29,6 @@ const EMPTY_WEEKLY_PLAN = {
 const CUSTOM_TRAFFIC_OPTIONS = TRAFFIC_OPTIONS.filter((item) => item.value !== 'all');
 const CUSTOM_TYPE_OPTIONS = TYPE_OPTIONS.filter((item) => item.value !== 'all');
 const CUSTOM_SEASON_OPTIONS = SEASON_OPTIONS.filter((item) => item.value !== 'all');
-const CUSTOM_DATE_TAG_OPTIONS = DATE_TAG_OPTIONS.filter((item) => item.value !== 'all');
 const SOUP_KEYWORD_PATTERN = /(汤|羹|浓汤)$/;
 const STAPLE_KEYWORD_PATTERN = /(面|饭|粥|粉|饺子|馄饨|包子|炒饭|盖饭)$/;
 const STAPLE_ID_PATTERN = /(noodle|bowl|congee|dumpling|soba|rice|pasta)/;
@@ -75,7 +71,6 @@ function getDefaultCustomForm() {
     trafficLight: 'green',
     type: 'vegetarian',
     seasonsText: 'spring,summer',
-    dateTagsText: 'weekday,weekend',
     nutrientsText: '',
     ingredientsText: '',
     bestTime: '',
@@ -86,7 +81,6 @@ function getDefaultCustomForm() {
 
 function getCustomFormState(form = getDefaultCustomForm()) {
   const customSeasonValues = splitText(form.seasonsText, []);
-  const customDateTagValues = splitText(form.dateTagsText, []);
   const customSteps =
     Array.isArray(form.customSteps) && form.customSteps.length
       ? form.customSteps.map((step, index) => ({
@@ -102,14 +96,9 @@ function getCustomFormState(form = getDefaultCustomForm()) {
       customSteps
     },
     customSeasonValues,
-    customDateTagValues,
     customSeasonChoiceOptions: CUSTOM_SEASON_OPTIONS.map((item) => ({
       ...item,
       checked: customSeasonValues.includes(item.value)
-    })),
-    customDateTagChoiceOptions: CUSTOM_DATE_TAG_OPTIONS.map((item) => ({
-      ...item,
-      checked: customDateTagValues.includes(item.value)
     })),
     customTypeLabel: TYPE_LABELS[form.type] || form.type,
     customTrafficLabel: TRAFFIC_LABELS[form.trafficLight] || form.trafficLight
@@ -121,7 +110,6 @@ function getDefaultDetailEditForm() {
     ingredientsText: '',
     cookingMethod: '',
     seasonsText: '',
-    dateTagsText: '',
     customSteps: [getDefaultCustomStep()]
   };
 }
@@ -141,12 +129,10 @@ Page({
     homeSubTab: 'spin',
     tabOptions: TAB_OPTIONS,
     seasonOptions: SEASON_OPTIONS,
-    dateTagOptions: DATE_TAG_OPTIONS,
     trafficOptions: TRAFFIC_OPTIONS,
     typeOptions: TYPE_OPTIONS,
     spinnerModes: SPINNER_MODES,
     seasonIndex: 0,
-    dateTagIndex: 0,
     trafficIndex: 0,
     typeIndex: 0,
     spinnerModeIndex: 0,
@@ -157,9 +143,7 @@ Page({
     customTrafficOptions: CUSTOM_TRAFFIC_OPTIONS,
     customTypeOptions: CUSTOM_TYPE_OPTIONS,
     customSeasonOptions: CUSTOM_SEASON_OPTIONS,
-    customDateTagOptions: CUSTOM_DATE_TAG_OPTIONS,
     currentSeasonLabel: '',
-    currentDateTagLabel: '',
     todayText: '',
     favoriteCount: 0,
     customCount: 0,
@@ -184,8 +168,6 @@ Page({
     detailVisible: false,
     detailEditing: false,
     detailEditForm: getDefaultDetailEditForm(),
-    detailSeasonValues: [],
-    detailDateTagValues: [],
     customFoods: [],
     ...getCustomFormState(),
     recordYear: getTodayParts().year,
@@ -206,7 +188,6 @@ Page({
   refreshState() {
     const now = new Date();
     const currentSeason = getCurrentSeason(now);
-    const currentDateTag = getCurrentDateTag(now);
     const favoriteIds = getStorage(STORAGE_KEYS.favoriteIds, []);
     const customFoods = getStorage(STORAGE_KEYS.customFoods, []);
     const foodEdits = getStorage(STORAGE_KEYS.foodEdits, {});
@@ -251,8 +232,7 @@ Page({
           isFavorite: favoriteIds.includes(food.id),
           typeLabel: TYPE_LABELS[normalizedType] || normalizedType,
           trafficLabel: TRAFFIC_LABELS[merged.trafficLight] || merged.trafficLight,
-          seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / '),
-          dateTagText: merged.dateTags.map((item) => DATE_TAG_LABELS[item] || item).join(' / ')
+          seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / ')
         };
       })
     );
@@ -264,7 +244,6 @@ Page({
     this.setData({
       todayText: formatDate(now),
       currentSeasonLabel: SEASON_LABELS[currentSeason],
-      currentDateTagLabel: DATE_TAG_LABELS[currentDateTag],
       favoriteCount: favoriteFoods.length,
       customCount: customFoods.length,
       recordCount: records.length,
@@ -301,8 +280,7 @@ Page({
         isSpinnerActive: spinnerActiveFoodIds.includes(merged.id),
         typeLabel: TYPE_LABELS[normalizedType] || normalizedType,
         trafficLabel: TRAFFIC_LABELS[merged.trafficLight] || merged.trafficLight,
-        seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / '),
-        dateTagText: merged.dateTags.map((item) => DATE_TAG_LABELS[item] || item).join(' / ')
+        seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / ')
       };
     });
   },
@@ -321,14 +299,12 @@ Page({
 
   applyFilters(allFoods) {
     const season = SEASON_OPTIONS[this.data.seasonIndex].value;
-    const dateTag = DATE_TAG_OPTIONS[this.data.dateTagIndex].value;
     const traffic = TRAFFIC_OPTIONS[this.data.trafficIndex].value;
     const type = TYPE_OPTIONS[this.data.typeIndex].value;
     const keyword = (this.data.searchQuery || '').trim().toLowerCase();
 
     return allFoods.filter((food) => {
       const matchSeason = season === 'all' || food.seasons.includes(season);
-      const matchDate = dateTag === 'all' || food.dateTags.includes(dateTag);
       const matchTraffic = traffic === 'all' || food.trafficLight === traffic;
       const matchType = type === 'all' || food.type === type;
       const haystack = [
@@ -342,7 +318,7 @@ Page({
         .join(' ')
         .toLowerCase();
       const matchKeyword = !keyword || haystack.includes(keyword);
-      return matchSeason && matchDate && matchTraffic && matchType && matchKeyword;
+      return matchSeason && matchTraffic && matchType && matchKeyword;
     });
   },
 
@@ -593,10 +569,7 @@ Page({
       getStorage(STORAGE_KEYS.foodEdits, {})
     );
     const currentSeason = getCurrentSeason(new Date());
-    const currentDateTag = getCurrentDateTag(new Date());
-    const pool = allFoods.filter(
-      (food) => food.seasons.includes(currentSeason) && food.dateTags.includes(currentDateTag)
-    );
+    const pool = allFoods.filter((food) => food.seasons.includes(currentSeason));
     const picked = pickRandom(pool.length ? pool : allFoods);
 
     if (!picked) {
@@ -694,9 +667,7 @@ Page({
       detailFood: this.decorateDetailFood(food),
       detailVisible: true,
       detailEditing: false,
-      detailEditForm: this.getDetailEditForm(food),
-      detailSeasonValues: food.seasons || [],
-      detailDateTagValues: food.dateTags || []
+      detailEditForm: this.getDetailEditForm(food)
     });
   },
 
@@ -714,7 +685,6 @@ Page({
       ingredientsText: (food.ingredients || []).join('\n'),
       cookingMethod: food.cookingMethod || '',
       seasonsText: (food.seasons || []).join(','),
-      dateTagsText: (food.dateTags || []).join(','),
       customSteps: (food.cookingSteps || []).map((step) => ({
         detail: step.detail || ''
       }))
@@ -726,9 +696,7 @@ Page({
       detailFood: null,
       detailVisible: false,
       detailEditing: false,
-      detailEditForm: getDefaultDetailEditForm(),
-      detailSeasonValues: [],
-      detailDateTagValues: []
+      detailEditForm: getDefaultDetailEditForm()
     });
   },
 
@@ -738,9 +706,7 @@ Page({
 
     this.setData({
       detailEditing: !this.data.detailEditing,
-      detailEditForm: this.getDetailEditForm(food),
-      detailSeasonValues: food.seasons || [],
-      detailDateTagValues: food.dateTags || []
+      detailEditForm: this.getDetailEditForm(food)
     });
   },
 
@@ -754,18 +720,6 @@ Page({
   toggleMultiSelectValue(currentValues, value) {
     const values = Array.isArray(currentValues) ? currentValues.filter(Boolean) : [];
     return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
-  },
-
-  toggleDetailMultiValue(event) {
-    const field = event.currentTarget.dataset.field;
-    const value = event.currentTarget.dataset.value;
-    if (!field || !value) return;
-    const valuesKey = field === 'seasonsText' ? 'detailSeasonValues' : 'detailDateTagValues';
-    const nextValues = this.toggleMultiSelectValue(this.data[valuesKey], value);
-    this.setData({
-      [`detailEditForm.${field}`]: nextValues.join(','),
-      [valuesKey]: nextValues
-    });
   },
 
   addDetailStep() {
@@ -805,7 +759,6 @@ Page({
     const foodEdits = getStorage(STORAGE_KEYS.foodEdits, {});
     const ingredients = splitText(this.data.detailEditForm.ingredientsText, food.ingredients || []);
     const seasons = this.normalizeEnumList(this.data.detailEditForm.seasonsText, ['spring', 'summer', 'autumn', 'winter'], food.seasons || ['spring']);
-    const dateTags = this.normalizeEnumList(this.data.detailEditForm.dateTagsText, ['weekday', 'weekend', 'festival'], food.dateTags || ['weekday']);
     const cookingMethod = (this.data.detailEditForm.cookingMethod || '').trim() || food.cookingMethod || '???????';
     const cookingSteps = this.normalizeCustomSteps(this.data.detailEditForm.customSteps, cookingMethod);
 
@@ -814,7 +767,6 @@ Page({
       [food.id]: {
         ingredients,
         seasons,
-        dateTags,
         cookingMethod,
         cookingSteps
       }
@@ -827,7 +779,6 @@ Page({
               ...item,
               ingredients,
               seasons,
-              dateTags,
               cookingMethod,
               cookingSteps
             }
@@ -948,8 +899,8 @@ Page({
   toggleCustomMultiValue(event) {
     const field = event.currentTarget.dataset.field;
     const value = event.currentTarget.dataset.value;
-    if (!field || !value) return;
-    const valuesKey = field === 'seasonsText' ? 'customSeasonValues' : 'customDateTagValues';
+    if (!field || !value || field !== 'seasonsText') return;
+    const valuesKey = 'customSeasonValues';
     const nextValues = this.toggleMultiSelectValue(this.data[valuesKey], value);
     this.setData({
       [`customForm.${field}`]: nextValues.join(','),
@@ -959,9 +910,9 @@ Page({
 
   handleCustomMultiChange(event) {
     const field = event.currentTarget.dataset.field;
-    if (!field) return;
+    if (!field || field !== 'seasonsText') return;
     const nextValues = event.detail.value || [];
-    const valuesKey = field === 'seasonsText' ? 'customSeasonValues' : 'customDateTagValues';
+    const valuesKey = 'customSeasonValues';
     this.updateCustomForm({
       [field]: nextValues.join(','),
       [valuesKey]: nextValues
@@ -1023,7 +974,6 @@ Page({
         type: this.normalizeSingle(form.type, ['vegetarian', 'meat', 'soup', 'staple'], 'vegetarian')
       }),
       seasons: this.normalizeEnumList(form.seasonsText, ['spring', 'summer', 'autumn', 'winter'], ['spring']),
-      dateTags: this.normalizeEnumList(form.dateTagsText, ['weekday', 'weekend', 'festival'], ['weekday']),
       nutrients: splitText(form.nutrientsText, ['均衡搭配']),
       ingredients: splitText(form.ingredientsText, ['按个人准备']),
       bestTime: (form.bestTime || '').trim() || '按需安排',
@@ -1058,7 +1008,6 @@ Page({
         trafficLight: food.trafficLight,
         type: food.type,
         seasonsText: food.seasons.join(','),
-        dateTagsText: food.dateTags.join(','),
         nutrientsText: (food.nutrients || []).join(','),
         ingredientsText: (food.ingredients || []).join(','),
         bestTime: food.bestTime,
