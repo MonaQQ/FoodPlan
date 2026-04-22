@@ -176,6 +176,8 @@ Page({
     records: [],
     todayPick: null,
     randomPick: null,
+    randomPickRecorded: false,
+    spinnerSelectedFoods: [],
     weeklyDailyCount: 3,
     weeklyPlan: EMPTY_WEEKLY_PLAN,
     detailFood: null,
@@ -208,6 +210,8 @@ Page({
     const favoriteIds = getStorage(STORAGE_KEYS.favoriteIds, []);
     const customFoods = getStorage(STORAGE_KEYS.customFoods, []);
     const foodEdits = getStorage(STORAGE_KEYS.foodEdits, {});
+    const spinnerSelectedFoodIds = getStorage(STORAGE_KEYS.spinnerSelectedFoodIds, []);
+    const spinnerActiveFoodIds = getStorage(STORAGE_KEYS.spinnerActiveFoodIds, []);
     const rawRecords = getStorage(STORAGE_KEYS.records, []);
     const records = rawRecords
       .slice()
@@ -220,6 +224,21 @@ Page({
     const weeklyDailyCount = Number(getStorage(STORAGE_KEYS.weeklyDailyCount, 3)) || 3;
     const storedPlan = getStorage(STORAGE_KEYS.weeklyPlan, EMPTY_WEEKLY_PLAN);
     const allFoods = this.buildAllFoods(favoriteIds, customFoods, foodEdits);
+    const spinnerSelectedFoods = spinnerSelectedFoodIds
+      .map((id) => allFoods.find((food) => food.id === id))
+      .filter(Boolean)
+      .map((food) => ({
+        ...food,
+        isSpinnerActive: spinnerActiveFoodIds.includes(food.id)
+      }));
+    const normalizedSpinnerSelectedFoodIds = spinnerSelectedFoods.map((food) => food.id);
+    const normalizedSpinnerActiveFoodIds = spinnerSelectedFoods.filter((food) => food.isSpinnerActive).map((food) => food.id);
+    if (normalizedSpinnerSelectedFoodIds.length !== spinnerSelectedFoodIds.length) {
+      setStorage(STORAGE_KEYS.spinnerSelectedFoodIds, normalizedSpinnerSelectedFoodIds);
+    }
+    if (normalizedSpinnerActiveFoodIds.length !== spinnerActiveFoodIds.length) {
+      setStorage(STORAGE_KEYS.spinnerActiveFoodIds, normalizedSpinnerActiveFoodIds);
+    }
     const catalogFoods = this.applyFilters(allFoods);
     const favoriteFoods = allFoods.filter((food) => food.isFavorite);
     const filteredCustomFoods = this.applyCustomSearch(
@@ -252,6 +271,7 @@ Page({
       catalogFoods,
       filteredCustomFoods,
       filteredRecordFoods,
+      spinnerSelectedFoods,
       favoriteFoods,
       records,
       customFoods,
@@ -268,6 +288,8 @@ Page({
   },
 
   buildAllFoods(favoriteIds, customFoods, foodEdits = {}) {
+    const spinnerSelectedFoodIds = getStorage(STORAGE_KEYS.spinnerSelectedFoodIds, []);
+    const spinnerActiveFoodIds = getStorage(STORAGE_KEYS.spinnerActiveFoodIds, []);
     return [...FOODS, ...customFoods].map((food) => {
       const merged = this.mergeFoodDraft(food, foodEdits[food.id]);
       const normalizedType = inferFoodType(merged);
@@ -275,6 +297,8 @@ Page({
         ...merged,
         type: normalizedType,
         isFavorite: favoriteIds.includes(food.id),
+        isInSpinnerPool: spinnerSelectedFoodIds.includes(merged.id),
+        isSpinnerActive: spinnerActiveFoodIds.includes(merged.id),
         typeLabel: TYPE_LABELS[normalizedType] || normalizedType,
         trafficLabel: TRAFFIC_LABELS[merged.trafficLight] || merged.trafficLight,
         seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / '),
@@ -592,38 +616,44 @@ Page({
   },
 
   spinRandom(options = {}) {
-    const { record = true, toast = true } = options;
+    const { toast = true } = options;
     const favoriteIds = getStorage(STORAGE_KEYS.favoriteIds, []);
     const customFoods = getStorage(STORAGE_KEYS.customFoods, []);
     const allFoods = this.buildAllFoods(favoriteIds, customFoods, getStorage(STORAGE_KEYS.foodEdits, {}));
-    const mode = SPINNER_MODES[this.data.spinnerModeIndex].value;
-    let pool = allFoods;
-
-    if (mode === 'favorites') {
-      pool = allFoods.filter((food) => food.isFavorite);
-    }
-    if (mode === 'custom') {
-      pool = customFoods.map((food) => ({
-        ...food,
-        isFavorite: favoriteIds.includes(food.id)
-      }));
-    }
+    const spinnerActiveFoodIds = getStorage(STORAGE_KEYS.spinnerActiveFoodIds, []);
+    const pool = allFoods.filter((food) => spinnerActiveFoodIds.includes(food.id));
 
     const picked = pickRandom(pool);
     if (!picked) {
       if (toast) {
-        wx.showToast({ title: '???????', icon: 'none' });
+        wx.showToast({ title: '请先选择转盘菜品', icon: 'none' });
       }
       return;
     }
 
-    if (record) {
-      this.pushRecord(picked, 'custom');
-    }
-    this.setData({ randomPick: picked });
+    this.setData({
+      randomPick: picked,
+      randomPickRecorded: false
+    });
     if (toast) {
-      wx.showToast({ title: `?? ${picked.name}`, icon: 'none' });
+      wx.showToast({ title: `试试 ${picked.name}`, icon: 'none' });
     }
+  },
+
+  confirmRandomPick() {
+    const picked = this.data.randomPick;
+    if (!picked) {
+      wx.showToast({ title: '先转一个结果', icon: 'none' });
+      return;
+    }
+    if (this.data.randomPickRecorded) {
+      wx.showToast({ title: '今天已记录这道菜', icon: 'none' });
+      return;
+    }
+
+    this.pushRecord(picked, 'spinner');
+    this.setData({ randomPickRecorded: true });
+    wx.showToast({ title: `今天吃 ${picked.name}`, icon: 'none' });
   },
 
   pushRecord(food, source, dateText) {
@@ -823,6 +853,44 @@ Page({
     if (this.data.detailVisible && this.data.detailFood && this.data.detailFood.id === foodId) {
       this.setData({
         'detailFood.isFavorite': nextFavorite
+      });
+    }
+    this.refreshState();
+  },
+
+  toggleSpinnerSelection(event) {
+    const foodId = event.currentTarget.dataset.id;
+    if (!foodId) return;
+    const selected = getStorage(STORAGE_KEYS.spinnerSelectedFoodIds, []);
+    const active = getStorage(STORAGE_KEYS.spinnerActiveFoodIds, []);
+    const isSelected = selected.includes(foodId);
+    const nextSelected = isSelected ? selected.filter((id) => id !== foodId) : [...selected, foodId];
+    const nextActive = isSelected ? active.filter((id) => id !== foodId) : active.includes(foodId) ? active : [...active, foodId];
+    setStorage(STORAGE_KEYS.spinnerSelectedFoodIds, nextSelected);
+    setStorage(STORAGE_KEYS.spinnerActiveFoodIds, nextActive);
+
+    if (this.data.randomPick && this.data.randomPick.id === foodId && !nextActive.includes(foodId)) {
+      this.setData({
+        randomPick: null,
+        randomPickRecorded: false
+      });
+    }
+    this.refreshState();
+  },
+
+  toggleSpinnerActive(event) {
+    const foodId = event.currentTarget.dataset.id;
+    if (!foodId) return;
+    const selected = getStorage(STORAGE_KEYS.spinnerSelectedFoodIds, []);
+    if (!selected.includes(foodId)) return;
+    const active = getStorage(STORAGE_KEYS.spinnerActiveFoodIds, []);
+    const nextActive = active.includes(foodId) ? active.filter((id) => id !== foodId) : [...active, foodId];
+    setStorage(STORAGE_KEYS.spinnerActiveFoodIds, nextActive);
+
+    if (this.data.randomPick && this.data.randomPick.id === foodId && !nextActive.includes(foodId)) {
+      this.setData({
+        randomPick: null,
+        randomPickRecorded: false
       });
     }
     this.refreshState();

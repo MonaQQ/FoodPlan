@@ -2,6 +2,8 @@ const STORAGE_KEYS = {
   favoriteIds: 'miniapp-favorite-ids',
   customFoods: 'miniapp-custom-foods',
   foodEdits: 'miniapp-food-edits',
+  spinnerSelectedFoodIds: 'miniapp-spinner-selected-food-ids',
+  spinnerActiveFoodIds: 'miniapp-spinner-active-food-ids',
   records: 'miniapp-records',
   weeklyDailyCount: 'miniapp-weekly-daily-count',
   weeklyPlan: 'miniapp-weekly-plan'

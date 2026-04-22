@@ -44,7 +44,7 @@
             </view>
             <view class="feature-tag cool">Quick Spin</view>
           </view>
-          <picker mode="selector" range="{{spinnerModes}}" range-key="label" value="{{spinnerModeIndex}}" bindchange="handleSpinnerModeChange">
+          <picker wx:if="{{false}}" mode="selector" range="{{spinnerModes}}" range-key="label" value="{{spinnerModeIndex}}" bindchange="handleSpinnerModeChange">
             <view class="picker-field">抽取范围：{{spinnerModes[spinnerModeIndex].label}}</view>
           </picker>
           <button class="primary-btn cool-btn" bindtap="spinRandom">随机来一餐</button>
@@ -52,7 +52,26 @@
             <view class="result-title">{{randomPick.name}}</view>
             <view class="result-meta">{{randomPick.bestTime}} · {{randomPick.calories}} kcal / 100g</view>
             <view class="result-desc">{{randomPick.description}}</view>
+            <button class="primary-btn confirm-pick-btn {{randomPickRecorded ? 'disabled' : ''}}" bindtap="confirmRandomPick">{{randomPickRecorded ? '今天已记录' : '就要这个菜'}}</button>
             <button class="ghost-btn subtle-btn" data-id="{{randomPick.id}}" bindtap="openFoodDetail">查看详情</button>
+          </view>
+          <view class="saved-food-summary spinner-pool-panel">
+            <view class="saved-food-count">已选 {{spinnerSelectedFoods.length}} 道转盘菜品</view>
+            <view class="saved-food-tip">去菜谱页点 + 加入；勾选的才参与转盘，未勾选的只保留在列表里。</view>
+            <view wx:if="{{spinnerSelectedFoods.length > 0}}" class="choice-group spinner-chip-group">
+              <block wx:for="{{spinnerSelectedFoods}}" wx:key="id">
+                <view class="spinner-food-row {{item.isSpinnerActive ? 'active' : ''}}">
+                  <view class="spinner-check-wrap {{item.isSpinnerActive ? 'active' : ''}}" data-id="{{item.id}}" bindtap="toggleSpinnerActive">
+                    <text class="choice-check">{{item.isSpinnerActive ? '✓' : ''}}</text>
+                  </view>
+                  <view class="spinner-food-name" data-id="{{item.id}}" bindtap="toggleSpinnerActive">{{item.name}}</view>
+                  <view class="spinner-remove-wrap" data-id="{{item.id}}" bindtap="toggleSpinnerSelection">
+                    <text class="spinner-remove-mark">×</text>
+                  </view>
+                </view>
+              </block>
+            </view>
+            <view wx:else class="empty-text">还没选菜，先去菜谱页把想吃的加入转盘。</view>
           </view>
         </view>
 
@@ -174,6 +193,7 @@
               </view>
               <view class="food-card-meta-row">
                 <button class="collect-chip {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '已藏' : '收藏'}}</button>
+                <button class="collect-chip spinner-add-chip {{item.isInSpinnerPool ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleSpinnerSelection" plain="{{false}}">{{item.isInSpinnerPool ? '已选' : '+'}}</button>
                 <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
               </view>
             </view>

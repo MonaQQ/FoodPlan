@@ -679,6 +679,19 @@ button {
   color: #be123c;
 }
 
+.spinner-add-chip {
+  min-width: 66rpx;
+  width: auto;
+  padding: 0 12rpx;
+  background: #ecfeff;
+  color: #0f766e;
+}
+
+.spinner-add-chip.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
 .food-description {
   min-height: 72rpx;
   color: #475569;
@@ -757,6 +770,98 @@ button {
 .badge-fav {
   background: #ffe4e6;
   color: #be123c;
+}
+
+.spinner-pool-panel {
+  margin-top: 14rpx;
+}
+
+.spinner-chip-group {
+  margin-top: 12rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.spinner-food-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1rpx solid #e2e8f0;
+}
+
+.spinner-food-row.active {
+  background: linear-gradient(180deg, #fff7ed, #ffedd5);
+  border-color: #fdba74;
+}
+
+.spinner-check-wrap {
+  width: 36rpx;
+  min-width: 36rpx;
+  height: 36rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36rpx;
+}
+
+.spinner-check-wrap .choice-check {
+  width: 26rpx;
+  min-width: 26rpx;
+  height: 26rpx;
+  line-height: 26rpx;
+  font-size: 18rpx;
+}
+
+.spinner-check-wrap.active .choice-check {
+  border-color: #f97316;
+  background: #f97316;
+  color: #ffffff;
+}
+
+.spinner-food-name {
+  flex: 1;
+  min-width: 0;
+  color: #0f172a;
+  font-size: 24rpx;
+  line-height: 1.4;
+  padding: 4rpx 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spinner-remove-wrap {
+  width: 36rpx;
+  min-width: 36rpx;
+  height: 36rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36rpx;
+  border-radius: 999rpx;
+  background: #fff1f2;
+}
+
+.spinner-remove-mark {
+  color: #be123c;
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.confirm-pick-btn {
+  margin-top: 16rpx;
+  background: #ea580c;
+  box-shadow: 0 16rpx 28rpx rgba(234, 88, 12, 0.24);
+}
+
+.confirm-pick-btn.disabled {
+  background: #cbd5e1;
+  color: #475569;
+  box-shadow: none;
 }
 
 .food-actions,
