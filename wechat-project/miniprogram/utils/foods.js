@@ -198,7 +198,7 @@ const FOODS = [
     seasons: ['autumn'],
     dateTags: ['weekday', 'weekend'],
     description: '易消化的暖胃选择，富含β-胡萝卜素。',
-    nutrients: ['β-胡萝卜素', '镁'],
+    nutrients: ['β-胡萝卜素', 'þ'],
     ingredients: ['南瓜', '小米', '清水'],
     cookingMethod: '南瓜与小米慢火熬煮至糯软。',
     bestTime: '早餐',
@@ -393,7 +393,7 @@ const FOODS = [
     cookingMethod: '多种谷物浸泡后慢熬成糯粥。',
     bestTime: '早餐/宵夜',
     cookingSteps: [
-      { title: '提前浸泡', duration: '4小时', detail: '所有杂粮提前泡水 4 小时。' },
+      { title: '提前浸泡', duration: '4Сʱ', detail: '所有杂粮提前泡水 4 小时。' },
       { title: '大火煮沸', duration: '10分钟', detail: '加入足量清水大火煮开。' },
       { title: '小火慢熬', duration: '40分钟', detail: '改小火熬至粥体浓稠，适量加糖。' }
     ]
@@ -636,7 +636,7 @@ const FOODS = [
     dateTags: ['weekday', 'weekend'],
     description: '快手家常汤，清淡顺口，也很适合做工作日晚餐。',
     nutrients: ['碘', '蛋白质'],
-    ingredients: ['紫菜', '鸡蛋', '虾皮', '香油'],
+    ingredients: ['紫菜', '鸡蛋', 'ϺƤ', '香油'],
     cookingMethod: '汤底烧开后淋入蛋液，加入紫菜和虾皮即可。',
     bestTime: '工作日晚餐',
     cookingSteps: [

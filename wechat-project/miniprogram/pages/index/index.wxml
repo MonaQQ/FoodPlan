@@ -40,14 +40,14 @@
           <view class="feature-header">
             <view>
               <view class="section-eyebrow">随心转盘</view>
-              <view class="section-title">当你不想纠结，就直接随机来一顿</view>
+              <view class="section-title">当你不想纠结，就直接随机来一餐</view>
             </view>
             <view class="feature-tag cool">Quick Spin</view>
           </view>
           <picker mode="selector" range="{{spinnerModes}}" range-key="label" value="{{spinnerModeIndex}}" bindchange="handleSpinnerModeChange">
             <view class="picker-field">抽取范围：{{spinnerModes[spinnerModeIndex].label}}</view>
           </picker>
-          <button class="primary-btn cool-btn" bindtap="spinRandom">随机来一顿</button>
+          <button class="primary-btn cool-btn" bindtap="spinRandom">随机来一餐</button>
           <view wx:if="{{randomPick}}" class="result-card accent">
             <view class="result-title">{{randomPick.name}}</view>
             <view class="result-meta">{{randomPick.bestTime}} · {{randomPick.calories}} kcal / 100g</view>
@@ -64,7 +64,7 @@
             </view>
             <view class="feature-tag">Today Pick</view>
           </view>
-          <view class="section-desc">适合打开应用后第一步使用，先缩小选择范围，再决定要不要继续看详情。</view>
+          <view class="section-desc">适合打开应用后的第一步使用，先缩小选择范围，再决定要不要继续看详情。</view>
           <button class="primary-btn" bindtap="makeTodayPick">推荐今日一餐</button>
           <view wx:if="{{todayPick}}" class="result-card">
             <view class="result-title">{{todayPick.name}}</view>
@@ -86,7 +86,7 @@
                     <view class="food-name">{{item.name}}</view>
                   </view>
                   <view class="food-card-meta-row">
-                    <button class="favorite-icon-btn {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '♥' : '♡'}}</button>
+                    <button class="collect-chip {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '已藏' : '收藏'}}</button>
                     <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
                   </view>
                 </view>
@@ -119,7 +119,7 @@
           <view class="overview-card home-pane-card">
             <view class="section-eyebrow">当前概览</view>
             <view class="section-title">今天吃什么，交给推荐、筛选和计划</view>
-            <view class="section-desc">把原版网页里的推荐、收藏、计划和记录整理进一个更顺手的移动端入口。</view>
+            <view class="section-desc">把原网页里的推荐、收藏、计划和记录整理进一个更顺手的移动端入口。</view>
             <view class="overview-grid">
               <view class="overview-item">
                 <view class="overview-value">{{favoriteCount}}</view>
@@ -173,7 +173,7 @@
                 <view class="food-name">{{item.name}}</view>
               </view>
               <view class="food-card-meta-row">
-                <button class="favorite-icon-btn {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '♥' : '♡'}}</button>
+                <button class="collect-chip {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '已藏' : '收藏'}}</button>
                 <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
               </view>
             </view>
@@ -199,7 +199,7 @@
     <view class="card soft-card">
       <view class="section-eyebrow">自定义菜谱</view>
       <view class="section-title">{{customForm.id ? '编辑自定义菜品' : '保存自己的菜谱'}}</view>
-      <view class="section-desc">录入方式对齐原网页，支持单独编辑字段、选择时令与场景，以及逐步维护做法。</view>
+      <view class="section-desc">录入方式对齐原网页，支持单独编辑字段，并逐步维护做法。</view>
 
       <view class="form-section-title">基础信息</view>
       <input class="text-input compact-input" placeholder="菜名" value="{{customForm.name}}" data-field="name" bindinput="handleCustomInput" />
@@ -214,24 +214,8 @@
           <view class="picker-field no-top">分类：{{customTypeLabel}}</view>
         </picker>
         <picker mode="selector" range="{{customTrafficOptions}}" range-key="label" data-field="trafficLight" bindchange="handleCustomPickerChange">
-          <view class="picker-field no-top">灯号：{{customTrafficLabel}}</view>
+          <view class="picker-field no-top">难度：{{customTrafficLabel}}</view>
         </picker>
-      </view>
-
-      <view class="form-section-title">时令与场景</view>
-      <view class="choice-group">
-        <block wx:for="{{customSeasonOptions}}" wx:key="value">
-          <button class="choice-pill {{customSeasonValues.indexOf(item.value) !== -1 ? 'active' : ''}}" data-field="seasonsText" data-value="{{item.value}}" bindtap="toggleCustomMultiValue" plain="{{false}}">
-            {{item.label}}
-          </button>
-        </block>
-      </view>
-      <view class="choice-group compact">
-        <block wx:for="{{customDateTagOptions}}" wx:key="value">
-          <button class="choice-pill {{customDateTagValues.indexOf(item.value) !== -1 ? 'active' : ''}}" data-field="dateTagsText" data-value="{{item.value}}" bindtap="toggleCustomMultiValue" plain="{{false}}">
-            {{item.label}}
-          </button>
-        </block>
       </view>
 
       <view class="form-section-title">做法与食材</view>
@@ -261,8 +245,8 @@
       <view class="section-eyebrow">我的菜品</view>
       <view class="section-title">已保存的自定义内容</view>
       <view class="saved-food-summary">
-        <view class="saved-food-count">已保存 {{customFoods.length}} 道自定义菜</view>
-        <view class="saved-food-tip">这里可以继续搜索、点爱心收藏，点开卡片后再编辑或删除。</view>
+        <view class="saved-food-count">已保存 {{customFoods.length}} 道自定义菜品</view>
+        <view class="saved-food-tip">这里可以继续搜索、点击收藏按钮，点开卡片后再编辑或删除。</view>
       </view>
       <view class="search-shell">
         <input class="search-input" value="{{customSearchQuery}}" bindinput="handleCustomSearchInput" placeholder="搜索我的菜品、食材、营养或做法" confirm-type="search" />
@@ -278,7 +262,7 @@
                 <view class="food-name">{{item.name}}</view>
               </view>
               <view class="food-card-meta-row">
-                <button class="favorite-icon-btn {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '♥' : '♡'}}</button>
+                <button class="collect-chip {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '已藏' : '收藏'}}</button>
                 <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
               </view>
             </view>
@@ -321,7 +305,7 @@
                     <view class="food-name">{{item.name}}</view>
                   </view>
                   <view class="food-card-meta-row">
-                    <button class="favorite-icon-btn {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '♥' : '♡'}}</button>
+                    <button class="collect-chip {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '已藏' : '收藏'}}</button>
                     <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
                   </view>
                 </view>
@@ -415,7 +399,7 @@
                 <view class="food-name">{{item.name}}</view>
               </view>
               <view class="food-card-meta-row">
-                <button class="favorite-icon-btn {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '♥' : '♡'}}</button>
+                <button class="collect-chip {{item.isFavorite ? 'active' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite" plain="{{false}}">{{item.isFavorite ? '已藏' : '收藏'}}</button>
                 <view class="food-calorie-line">{{item.calories}} kcal / 100g</view>
               </view>
             </view>
@@ -471,23 +455,6 @@
         <view wx:if="{{!detailEditing}}">{{detailFood.cookingMethod}}</view>
         <textarea wx:if="{{detailEditing}}" class="text-area detail-edit-area" value="{{detailEditForm.cookingMethod}}" data-field="cookingMethod" bindinput="handleDetailEditInput" placeholder="写一段整体烹饪说明"></textarea>
       </view>
-      <view class="detail-block" wx:if="{{detailEditing}}">
-        <view class="detail-label">时令与场景</view>
-        <view class="choice-group">
-          <block wx:for="{{customSeasonOptions}}" wx:key="value">
-            <button class="choice-pill {{detailSeasonValues.indexOf(item.value) !== -1 ? 'active' : ''}}" data-field="seasonsText" data-value="{{item.value}}" bindtap="toggleDetailMultiValue" plain="{{false}}">
-              {{item.label}}
-            </button>
-          </block>
-        </view>
-        <view class="choice-group compact">
-          <block wx:for="{{customDateTagOptions}}" wx:key="value">
-            <button class="choice-pill {{detailDateTagValues.indexOf(item.value) !== -1 ? 'active' : ''}}" data-field="dateTagsText" data-value="{{item.value}}" bindtap="toggleDetailMultiValue" plain="{{false}}">
-              {{item.label}}
-            </button>
-          </block>
-        </view>
-      </view>
       <view class="detail-block">
         <view class="detail-label">步骤</view>
         <block wx:if="{{!detailEditing}}" wx:for="{{detailFood.stepLines}}" wx:key="*this">
@@ -525,3 +492,8 @@
     </block>
   </view>
 </view>
+
+
+
+
+

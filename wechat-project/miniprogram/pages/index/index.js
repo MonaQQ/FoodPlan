@@ -681,15 +681,17 @@ Page({
     });
   },
 
+  toggleMultiSelectValue(currentValues, value) {
+    const values = Array.isArray(currentValues) ? currentValues.filter(Boolean) : [];
+    return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
+  },
+
   toggleDetailMultiValue(event) {
     const field = event.currentTarget.dataset.field;
     const value = event.currentTarget.dataset.value;
     if (!field || !value) return;
-    const currentValues = splitText(this.data.detailEditForm[field] || '', []);
-    const nextValues = currentValues.includes(value)
-      ? currentValues.filter((item) => item !== value)
-      : [...currentValues, value];
     const valuesKey = field === 'seasonsText' ? 'detailSeasonValues' : 'detailDateTagValues';
+    const nextValues = this.toggleMultiSelectValue(this.data[valuesKey], value);
     this.setData({
       [`detailEditForm.${field}`]: nextValues.join(','),
       [valuesKey]: nextValues
@@ -839,12 +841,11 @@ Page({
     const field = event.currentTarget.dataset.field;
     const value = event.currentTarget.dataset.value;
     if (!field || !value) return;
-    const currentValues = splitText(this.data.customForm[field] || '', []);
-    const nextValues = currentValues.includes(value)
-      ? currentValues.filter((item) => item !== value)
-      : [...currentValues, value];
-    this.updateCustomForm({
-      [field]: nextValues.join(',')
+    const valuesKey = field === 'seasonsText' ? 'customSeasonValues' : 'customDateTagValues';
+    const nextValues = this.toggleMultiSelectValue(this.data[valuesKey], value);
+    this.setData({
+      [`customForm.${field}`]: nextValues.join(','),
+      [valuesKey]: nextValues
     });
   },
 
