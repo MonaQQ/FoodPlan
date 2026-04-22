@@ -77,14 +77,14 @@ button {
 .hero-eyebrow,
 .section-eyebrow {
   color: #64748b;
-  font-size: 22rpx;
+  font-size: 26rpx;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .hero-title {
   margin-top: 10rpx;
-  font-size: 48rpx;
+  font-size: 52rpx;
   line-height: 1.25;
   font-weight: 700;
   color: #0f172a;
@@ -93,7 +93,7 @@ button {
 .hero-subtitle {
   margin-top: 14rpx;
   color: #334155;
-  font-size: 26rpx;
+  font-size: 30rpx;
   line-height: 1.6;
 }
 
@@ -103,7 +103,7 @@ button {
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.72);
   color: #9a3412;
-  font-size: 22rpx;
+  font-size: 26rpx;
   font-weight: 700;
 }
 
@@ -123,13 +123,13 @@ button {
 
 .hero-status-label {
   color: #64748b;
-  font-size: 22rpx;
+  font-size: 26rpx;
 }
 
 .hero-status-value {
   margin-top: 8rpx;
   color: #0f172a;
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 700;
 }
 
@@ -171,7 +171,7 @@ button {
 
 .section-title {
   margin-top: 8rpx;
-  font-size: 34rpx;
+  font-size: 38rpx;
   line-height: 1.32;
   font-weight: 700;
   color: #0f172a;
@@ -179,7 +179,7 @@ button {
 
 .section-desc {
   color: #64748b;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1.6;
 }
 
@@ -189,7 +189,7 @@ button {
   border-radius: 999rpx;
   background: #ffedd5;
   color: #c2410c;
-  font-size: 22rpx;
+  font-size: 26rpx;
   font-weight: 700;
 }
 
@@ -209,35 +209,35 @@ button {
   margin-top: 22rpx;
   display: flex;
   align-items: flex-start;
-  gap: 14rpx;
+  gap: 18rpx;
 }
 
 .home-subtab-rail {
-  width: 88rpx;
-  min-width: 88rpx;
-  max-width: 88rpx;
-  flex: 0 0 88rpx;
+  width: 104rpx;
+  min-width: 104rpx;
+  max-width: 104rpx;
+  flex: 0 0 104rpx;
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 10rpx;
   position: relative;
   overflow: hidden;
 }
 
 .home-subtab-btn {
-  width: 88rpx;
-  min-width: 88rpx;
-  max-width: 88rpx;
-  height: 64rpx;
-  min-height: 64rpx;
+  width: 104rpx;
+  min-width: 104rpx;
+  max-width: 104rpx;
+  height: 76rpx;
+  min-height: 76rpx;
   padding: 0;
   margin: 0;
   border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.9);
   border: 1rpx solid rgba(226, 232, 240, 0.95);
   color: #475569;
-  font-size: 20rpx;
-  line-height: 64rpx;
+  font-size: 24rpx;
+  line-height: 76rpx;
   text-align: center;
   display: flex;
   align-items: center;
@@ -246,7 +246,7 @@ button {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: clip;
-  flex: 0 0 88rpx;
+  flex: 0 0 104rpx;
 }
 
 .home-subtab-btn.active {
@@ -292,14 +292,14 @@ button {
 }
 
 .overview-value {
-  font-size: 40rpx;
+  font-size: 44rpx;
   font-weight: 700;
   color: #0f172a;
 }
 
 .overview-label {
   margin-top: 8rpx;
-  font-size: 22rpx;
+  font-size: 26rpx;
   color: #64748b;
 }
 
@@ -307,8 +307,8 @@ button {
 .ghost-btn {
   width: 100%;
   border-radius: 20rpx;
-  font-size: 28rpx;
-  line-height: 90rpx;
+  font-size: 32rpx;
+  line-height: 98rpx;
   margin-top: 14rpx;
 }
 
@@ -341,7 +341,7 @@ button {
   border: 1rpx solid #e2e8f0;
   border-radius: 18rpx;
   padding: 22rpx 20rpx;
-  font-size: 26rpx;
+  font-size: 30rpx;
   color: #0f172a;
 }
 
@@ -350,8 +350,8 @@ button {
 }
 
 .compact-input {
-  height: 88rpx;
-  min-height: 88rpx;
+  height: 96rpx;
+  min-height: 96rpx;
   box-sizing: border-box;
 }
 
@@ -379,23 +379,23 @@ button {
 
 .search-input {
   flex: 1;
-  height: 88rpx;
+  height: 96rpx;
   padding: 0 22rpx;
   border-radius: 18rpx;
   border: 1rpx solid #e2e8f0;
   background: linear-gradient(180deg, #ffffff, #f8fafc);
-  font-size: 26rpx;
+  font-size: 30rpx;
   color: #0f172a;
 }
 
 .search-clear {
   flex-shrink: 0;
-  min-width: 120rpx;
+  min-width: 136rpx;
   border-radius: 16rpx;
   background: #f1f5f9;
   color: #475569;
-  font-size: 24rpx;
-  line-height: 72rpx;
+  font-size: 28rpx;
+  line-height: 80rpx;
   padding: 0 20rpx;
 }
 
@@ -412,7 +412,7 @@ button {
 }
 
 .result-title {
-  font-size: 30rpx;
+  font-size: 34rpx;
   font-weight: 700;
   color: #0f172a;
 }
@@ -426,7 +426,7 @@ button {
 .food-chip-meta {
   margin-top: 8rpx;
   color: #475569;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1.6;
 }
 
@@ -453,7 +453,7 @@ button {
 .food-name,
 .record-title,
 .planner-title {
-  font-size: 30rpx;
+  font-size: 34rpx;
   font-weight: 700;
   color: #0f172a;
 }
@@ -481,7 +481,7 @@ button {
   grid-column: 1 / -1;
   margin-top: 4rpx;
   color: #64748b;
-  font-size: 24rpx;
+  font-size: 28rpx;
 }
 
 .record-toolbar {
@@ -494,7 +494,7 @@ button {
 .record-month-label {
   flex: 1;
   text-align: center;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 700;
   color: #0f172a;
 }
@@ -519,13 +519,13 @@ button {
 
 .calendar-weekdays {
   color: #64748b;
-  font-size: 22rpx;
+  font-size: 26rpx;
   text-align: center;
   margin-bottom: 10rpx;
 }
 
 .calendar-day {
-  min-height: 118rpx;
+  min-height: 132rpx;
   border-radius: 18rpx;
   border: 1rpx solid #e2e8f0;
   background: linear-gradient(180deg, #ffffff, #f8fafc);
@@ -548,20 +548,20 @@ button {
 }
 
 .calendar-day-number {
-  font-size: 24rpx;
+  font-size: 28rpx;
   font-weight: 700;
   color: #0f172a;
 }
 
 .calendar-day-count {
   margin-top: 6rpx;
-  font-size: 20rpx;
+  font-size: 24rpx;
   color: #9a3412;
 }
 
 .calendar-day-preview {
   margin-top: 6rpx;
-  font-size: 20rpx;
+  font-size: 24rpx;
   color: #475569;
   line-height: 1.5;
   display: -webkit-box;
@@ -622,7 +622,7 @@ button {
   border-radius: 999rpx;
   background: linear-gradient(135deg, #fff7ed, #ffedd5);
   color: #9a3412;
-  font-size: 20rpx;
+  font-size: 24rpx;
   font-weight: 700;
   max-width: 100%;
 }
@@ -641,21 +641,21 @@ button {
   border-radius: 999rpx;
   background: #ffe4e6;
   color: #be123c;
-  font-size: 20rpx;
+  font-size: 24rpx;
   font-weight: 700;
 }
 
 .collect-chip {
-  width: 66rpx;
-  min-width: 66rpx;
-  max-width: 66rpx;
-  height: 36rpx;
-  line-height: 36rpx;
+  width: 78rpx;
+  min-width: 78rpx;
+  max-width: 78rpx;
+  height: 44rpx;
+  line-height: 44rpx;
   padding: 0 6rpx;
   border-radius: 999rpx;
   background: #fff7ed;
   color: #c2410c;
-  font-size: 18rpx;
+  font-size: 22rpx;
   text-align: center;
   margin: 0;
   flex-shrink: 0;
@@ -680,7 +680,7 @@ button {
 }
 
 .spinner-add-chip {
-  min-width: 66rpx;
+  min-width: 78rpx;
   width: auto;
   padding: 0 12rpx;
   background: #ecfeff;
@@ -695,7 +695,7 @@ button {
 .food-description {
   min-height: 72rpx;
   color: #475569;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1.5;
 }
 
@@ -740,7 +740,7 @@ button {
   background: #f8fafc;
   border: 1rpx solid #e2e8f0;
   color: #475569;
-  font-size: 22rpx;
+  font-size: 26rpx;
 }
 
 .food-card-main,
@@ -764,7 +764,7 @@ button {
   border-radius: 999rpx;
   background: #eef2ff;
   color: #4338ca;
-  font-size: 22rpx;
+  font-size: 26rpx;
 }
 
 .badge-fav {
@@ -799,21 +799,21 @@ button {
 }
 
 .spinner-check-wrap {
-  width: 36rpx;
-  min-width: 36rpx;
-  height: 36rpx;
+  width: 40rpx;
+  min-width: 40rpx;
+  height: 40rpx;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 36rpx;
+  flex: 0 0 40rpx;
 }
 
 .spinner-check-wrap .choice-check {
-  width: 26rpx;
-  min-width: 26rpx;
-  height: 26rpx;
-  line-height: 26rpx;
-  font-size: 18rpx;
+  width: 30rpx;
+  min-width: 30rpx;
+  height: 30rpx;
+  line-height: 30rpx;
+  font-size: 22rpx;
 }
 
 .spinner-check-wrap.active .choice-check {
@@ -826,7 +826,7 @@ button {
   flex: 1;
   min-width: 0;
   color: #0f172a;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1.4;
   padding: 4rpx 0;
   white-space: nowrap;
@@ -835,20 +835,20 @@ button {
 }
 
 .spinner-remove-wrap {
-  width: 36rpx;
-  min-width: 36rpx;
-  height: 36rpx;
+  width: 40rpx;
+  min-width: 40rpx;
+  height: 40rpx;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 36rpx;
+  flex: 0 0 40rpx;
   border-radius: 999rpx;
   background: #fff1f2;
 }
 
 .spinner-remove-mark {
   color: #be123c;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1;
 }
 
@@ -882,8 +882,8 @@ button {
   border-radius: 16rpx;
   background: #f8fafc;
   color: #0f172a;
-  font-size: 24rpx;
-  line-height: 74rpx;
+  font-size: 28rpx;
+  line-height: 82rpx;
   padding: 0;
 }
 
@@ -925,12 +925,12 @@ button {
 .detail-close {
   text-align: right;
   color: #64748b;
-  font-size: 24rpx;
+  font-size: 28rpx;
 }
 
 .detail-title {
   margin-top: 8rpx;
-  font-size: 38rpx;
+  font-size: 42rpx;
   font-weight: 700;
   color: #0f172a;
 }
@@ -938,7 +938,7 @@ button {
 .detail-subtitle {
   margin-top: 12rpx;
   color: #475569;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1.7;
 }
 
@@ -966,12 +966,12 @@ button {
 .detail-label {
   margin-bottom: 8rpx;
   color: #94a3b8;
-  font-size: 22rpx;
+  font-size: 26rpx;
 }
 
 .step-row {
   margin-top: 10rpx;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #334155;
   line-height: 1.6;
 }
@@ -990,7 +990,7 @@ button {
 .form-section-title {
   margin-top: 18rpx;
   color: #0f172a;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 700;
 }
 
@@ -1013,7 +1013,7 @@ button {
   background: #f8fafc;
   border: 1rpx solid #e2e8f0;
   color: #475569;
-  font-size: 24rpx;
+  font-size: 28rpx;
 }
 
 .choice-pill.active {
@@ -1048,15 +1048,15 @@ button {
 }
 
 .choice-check {
-  width: 28rpx;
-  min-width: 28rpx;
-  height: 28rpx;
-  line-height: 28rpx;
+  width: 32rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
   border-radius: 8rpx;
   border: 2rpx solid #cbd5e1;
   background: #ffffff;
   color: transparent;
-  font-size: 20rpx;
+  font-size: 24rpx;
   text-align: center;
 }
 
@@ -1082,8 +1082,8 @@ button {
 }
 
 .compact-search-input {
-  height: 72rpx;
-  font-size: 24rpx;
+  height: 80rpx;
+  font-size: 28rpx;
 }
 
 .compact-action-btn {
@@ -1099,7 +1099,7 @@ button {
 }
 
 .saved-food-count {
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #9a3412;
 }
@@ -1107,7 +1107,7 @@ button {
 .saved-food-tip {
   margin-top: 8rpx;
   color: #64748b;
-  font-size: 22rpx;
+  font-size: 26rpx;
   line-height: 1.5;
 }
 
@@ -1142,19 +1142,19 @@ button {
 
 .step-editor-title {
   color: #0f172a;
-  font-size: 24rpx;
+  font-size: 28rpx;
   font-weight: 700;
 }
 
 .step-remove-btn {
   min-width: 120rpx;
-  height: 60rpx;
-  line-height: 60rpx;
+  height: 68rpx;
+  line-height: 68rpx;
   padding: 0 18rpx;
   border-radius: 14rpx;
   background: #fff1f2;
   color: #be123c;
-  font-size: 22rpx;
+  font-size: 26rpx;
 }
 
 .step-detail-area {
@@ -1173,7 +1173,7 @@ button {
 .planner-day-title {
   margin: 6rpx 0 14rpx;
   color: #0f172a;
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 700;
 }
 
@@ -1184,14 +1184,14 @@ button {
 }
 
 .toolbar-btn {
-  min-width: 120rpx;
-  height: 64rpx;
-  line-height: 64rpx;
+  min-width: 132rpx;
+  height: 72rpx;
+  line-height: 72rpx;
   padding: 0 18rpx;
   border-radius: 16rpx;
   background: #f8fafc;
   color: #0f172a;
-  font-size: 22rpx;
+  font-size: 26rpx;
 }
 
 .ghost-toolbar-btn {
@@ -1211,15 +1211,15 @@ button {
 }
 
 .record-delete-btn {
-  width: 64rpx;
-  min-width: 64rpx;
-  height: 64rpx;
-  line-height: 64rpx;
+  width: 72rpx;
+  min-width: 72rpx;
+  height: 72rpx;
+  line-height: 72rpx;
   padding: 0;
   border-radius: 999rpx;
   background: #fff1f2;
   color: #be123c;
-  font-size: 40rpx;
+  font-size: 44rpx;
   text-align: center;
   margin-left: auto;
   margin-right: 0;
@@ -1251,8 +1251,8 @@ button {
   bottom: 20rpx;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12rpx;
-  padding: 14rpx;
+  gap: 14rpx;
+  padding: 16rpx;
   border-radius: 30rpx;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 20rpx 48rpx rgba(15, 23, 42, 0.14);
@@ -1260,7 +1260,7 @@ button {
 }
 
 .bottom-tab-item {
-  padding: 16rpx 8rpx;
+  padding: 18rpx 8rpx;
   border-radius: 22rpx;
   text-align: center;
   color: #64748b;
@@ -1274,6 +1274,6 @@ button {
 }
 
 .bottom-tab-label {
-  font-size: 24rpx;
+  font-size: 28rpx;
   font-weight: 700;
 }
