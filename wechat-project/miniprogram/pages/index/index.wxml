@@ -218,6 +218,20 @@
         </picker>
       </view>
 
+      <view class="form-section-title">时令与场景</view>
+      <checkbox-group class="choice-group compact" data-field="seasonsText" bindchange="handleCustomMultiChange">
+        <label wx:for="{{customSeasonChoiceOptions}}" wx:key="value" class="choice-pill checkbox-pill {{item.checked ? 'active' : ''}}">
+          <checkbox value="{{item.value}}" checked="{{item.checked}}" color="#f97316" />
+          <text class="choice-label">{{item.label}}</text>
+        </label>
+      </checkbox-group>
+      <checkbox-group class="choice-group compact" data-field="dateTagsText" bindchange="handleCustomMultiChange">
+        <label wx:for="{{customDateTagChoiceOptions}}" wx:key="value" class="choice-pill checkbox-pill {{item.checked ? 'active' : ''}}">
+          <checkbox value="{{item.value}}" checked="{{item.checked}}" color="#f97316" />
+          <text class="choice-label">{{item.label}}</text>
+        </label>
+      </checkbox-group>
+
       <view class="form-section-title">做法与食材</view>
       <textarea class="text-area" placeholder="食材，逗号或换行分隔" value="{{customForm.ingredientsText}}" data-field="ingredientsText" bindinput="handleCustomInput"></textarea>
       <textarea class="text-area" placeholder="烹饪说明" value="{{customForm.cookingMethod}}" data-field="cookingMethod" bindinput="handleCustomInput"></textarea>

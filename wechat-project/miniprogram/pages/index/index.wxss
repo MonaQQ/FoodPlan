@@ -937,6 +937,11 @@ button {
   box-shadow: inset 0 0 0 2rpx rgba(251, 146, 60, 0.18);
 }
 
+.checkbox-pill checkbox {
+  transform: scale(0.9);
+  transform-origin: left center;
+}
+
 .choice-check {
   width: 28rpx;
   min-width: 28rpx;

@@ -33,6 +33,24 @@ const CUSTOM_TRAFFIC_OPTIONS = TRAFFIC_OPTIONS.filter((item) => item.value !== '
 const CUSTOM_TYPE_OPTIONS = TYPE_OPTIONS.filter((item) => item.value !== 'all');
 const CUSTOM_SEASON_OPTIONS = SEASON_OPTIONS.filter((item) => item.value !== 'all');
 const CUSTOM_DATE_TAG_OPTIONS = DATE_TAG_OPTIONS.filter((item) => item.value !== 'all');
+const SOUP_KEYWORD_PATTERN = /(汤|羹|浓汤)$/;
+
+function inferFoodType(food = {}) {
+  const currentType = food.type;
+  if (currentType === 'soup') {
+    return 'soup';
+  }
+
+  const id = String(food.id || '').toLowerCase();
+  const name = String(food.name || '').trim();
+  const description = String(food.description || '').trim();
+
+  if (id.includes('soup') || SOUP_KEYWORD_PATTERN.test(name) || description.includes('汤品')) {
+    return 'soup';
+  }
+
+  return currentType;
+}
 
 function getDefaultCustomStep(index = 1) {
   return {
@@ -59,6 +77,8 @@ function getDefaultCustomForm() {
 }
 
 function getCustomFormState(form = getDefaultCustomForm()) {
+  const customSeasonValues = splitText(form.seasonsText, []);
+  const customDateTagValues = splitText(form.dateTagsText, []);
   const customSteps =
     Array.isArray(form.customSteps) && form.customSteps.length
       ? form.customSteps.map((step, index) => ({
@@ -73,8 +93,16 @@ function getCustomFormState(form = getDefaultCustomForm()) {
       ...form,
       customSteps
     },
-    customSeasonValues: splitText(form.seasonsText, []),
-    customDateTagValues: splitText(form.dateTagsText, []),
+    customSeasonValues,
+    customDateTagValues,
+    customSeasonChoiceOptions: CUSTOM_SEASON_OPTIONS.map((item) => ({
+      ...item,
+      checked: customSeasonValues.includes(item.value)
+    })),
+    customDateTagChoiceOptions: CUSTOM_DATE_TAG_OPTIONS.map((item) => ({
+      ...item,
+      checked: customDateTagValues.includes(item.value)
+    })),
     customTypeLabel: TYPE_LABELS[form.type] || form.type,
     customTrafficLabel: TRAFFIC_LABELS[form.trafficLight] || form.trafficLight
   };
@@ -189,10 +217,12 @@ Page({
     const filteredCustomFoods = this.applyCustomSearch(
       customFoods.map((food) => {
         const merged = this.mergeFoodDraft(food, foodEdits[food.id]);
+        const normalizedType = inferFoodType(merged);
         return {
           ...merged,
+          type: normalizedType,
           isFavorite: favoriteIds.includes(food.id),
-          typeLabel: TYPE_LABELS[merged.type] || merged.type,
+          typeLabel: TYPE_LABELS[normalizedType] || normalizedType,
           trafficLabel: TRAFFIC_LABELS[merged.trafficLight] || merged.trafficLight,
           seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / '),
           dateTagText: merged.dateTags.map((item) => DATE_TAG_LABELS[item] || item).join(' / ')
@@ -232,10 +262,12 @@ Page({
   buildAllFoods(favoriteIds, customFoods, foodEdits = {}) {
     return [...FOODS, ...customFoods].map((food) => {
       const merged = this.mergeFoodDraft(food, foodEdits[food.id]);
+      const normalizedType = inferFoodType(merged);
       return {
         ...merged,
+        type: normalizedType,
         isFavorite: favoriteIds.includes(food.id),
-        typeLabel: TYPE_LABELS[merged.type] || merged.type,
+        typeLabel: TYPE_LABELS[normalizedType] || normalizedType,
         trafficLabel: TRAFFIC_LABELS[merged.trafficLight] || merged.trafficLight,
         seasonText: merged.seasons.map((item) => SEASON_LABELS[item] || item).join(' / '),
         dateTagText: merged.dateTags.map((item) => DATE_TAG_LABELS[item] || item).join(' / ')
@@ -849,6 +881,17 @@ Page({
     });
   },
 
+  handleCustomMultiChange(event) {
+    const field = event.currentTarget.dataset.field;
+    if (!field) return;
+    const nextValues = event.detail.value || [];
+    const valuesKey = field === 'seasonsText' ? 'customSeasonValues' : 'customDateTagValues';
+    this.updateCustomForm({
+      [field]: nextValues.join(','),
+      [valuesKey]: nextValues
+    });
+  },
+
   addCustomStep() {
     const currentSteps = this.data.customForm.customSteps || [];
     this.updateCustomForm({
@@ -897,7 +940,12 @@ Page({
       description: (form.description || '').trim() || '自定义菜品',
       calories: Number(form.calories) || 0,
       trafficLight: this.normalizeSingle(form.trafficLight, ['green', 'yellow', 'red'], 'green'),
-      type: this.normalizeSingle(form.type, ['vegetarian', 'meat', 'soup', 'staple'], 'vegetarian'),
+      type: inferFoodType({
+        id,
+        name,
+        description: (form.description || '').trim(),
+        type: this.normalizeSingle(form.type, ['vegetarian', 'meat', 'soup', 'staple'], 'vegetarian')
+      }),
       seasons: this.normalizeEnumList(form.seasonsText, ['spring', 'summer', 'autumn', 'winter'], ['spring']),
       dateTags: this.normalizeEnumList(form.dateTagsText, ['weekday', 'weekend', 'festival'], ['weekday']),
       nutrients: splitText(form.nutrientsText, ['均衡搭配']),
